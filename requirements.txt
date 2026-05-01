@@ -1,0 +1,14 @@
+streamlit==1.35.0
+transformers==4.40.0
+torch==2.2.0
+xgboost==2.0.3
+scikit-learn==1.4.2
+pandas==2.2.2
+numpy==1.26.4
+psycopg2-binary==2.9.9
+plotly==5.22.0
+textstat==0.7.3
+vaderSentiment==3.3.2
+python-dotenv==1.0.1
+joblib==1.4.2
+huggingface-hub==0.23.0

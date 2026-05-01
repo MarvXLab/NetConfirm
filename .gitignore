@@ -1,0 +1,30 @@
+# Environment
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Data (too large for git)
+data/raw/
+data/processed/
+*.csv
+
+# Models (use HuggingFace Hub instead)
+models/
+*.pkl
+*.joblib
+*.pt
+*.bin
+
+# Streamlit
+.streamlit/secrets.toml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
