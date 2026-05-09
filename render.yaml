@@ -11,3 +11,5 @@ services:
         sync: false
       - key: HF_REPO
         sync: false
+      - key: PYTHONPATH
+        value: /opt/render/project/src
