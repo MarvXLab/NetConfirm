@@ -1,40 +1,34 @@
 import numpy as np
-from ml.text_encoder import get_text_embedding
+from scipy.sparse import hstack, csr_matrix
+from ml.text_encoder import compute_stat_features, get_text_embedding
 from ml.metadata_encoder import build_metadata_vector
 
 
-def build_hybrid_vector(
-    text: str,
-    trust_score: float,
-    follower_count: int,
-    account_age: int,
-) -> np.ndarray:
+def build_hybrid_vector(text: str, trust_score: float, follower_count: int, account_age: int):
     """
-    Build the full 773-dim hybrid feature vector.
-    768 (DistilBERT [CLS]) + 5 (metadata) = 773 dims.
-    Used at inference time.
+    Build the full hybrid feature vector for inference.
+    Combines: TF-IDF (sparse) + statistical features + metadata features
+    Returns a scipy sparse matrix row (1, n_features)
     """
-    text_vec = get_text_embedding(text)           # shape (768,)
-    meta_vec = build_metadata_vector(             # shape (5,)
+    # TF-IDF sparse vector
+    tfidf_vec = get_text_embedding(text)  # shape (1, tfidf_features) sparse
+
+    # Statistical features (12 dims)
+    stat_vec = compute_stat_features(text)  # shape (12,)
+
+    # Metadata features (3 dims: trust, followers_scaled, age_scaled)
+    meta_vec = build_metadata_vector(
         trust_score=trust_score,
         follower_count=follower_count,
         account_age=account_age,
         text=text,
     )
-    return np.concatenate([text_vec, meta_vec])   # shape (773,)
+    # Only use first 3 metadata features (trust, followers, age) — stat features cover sentiment+readability
+    meta_vec_3 = meta_vec[:3]
 
+    # Combine dense features
+    dense = np.concatenate([stat_vec, meta_vec_3]).reshape(1, -1)  # shape (1, 15)
+    dense_sparse = csr_matrix(dense)
 
-def build_hybrid_matrix(text_embeddings: np.ndarray, metadata_matrix: np.ndarray) -> np.ndarray:
-    """
-    Concatenate pre-computed text embeddings and metadata matrix.
-    Used during training for efficiency.
-
-    Args:
-        text_embeddings : shape (n_samples, 768)
-        metadata_matrix : shape (n_samples, 5)
-    Returns:
-        hybrid_matrix   : shape (n_samples, 773)
-    """
-    assert text_embeddings.shape[0] == metadata_matrix.shape[0], \
-        "Mismatch: text and metadata must have same number of samples"
-    return np.concatenate([text_embeddings, metadata_matrix], axis=1)
+    # Stack sparse + dense
+    return hstack([tfidf_vec, dense_sparse])  # shape (1, tfidf_features + 15)

@@ -1,82 +1,65 @@
-import torch
 import numpy as np
-from transformers import DistilBertTokenizer, DistilBertModel
+import re
+import textstat
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-MODEL_NAME = "distilbert-base-uncased"
+_analyzer = None
+_tfidf = None
 
-_tokenizer = None
-_model = None
+def _get_analyzer():
+    global _analyzer
+    if _analyzer is None:
+        _analyzer = SentimentIntensityAnalyzer()
+    return _analyzer
 
+def get_tfidf():
+    """Return the loaded TF-IDF vectorizer (loaded by predict.py)."""
+    return _tfidf
 
-def _load_model():
-    global _tokenizer, _model
-    if _tokenizer is None:
-        _tokenizer = DistilBertTokenizer.from_pretrained(MODEL_NAME)
-    if _model is None:
-        _model = DistilBertModel.from_pretrained(MODEL_NAME)
-        _model.eval()
-        # Free unused memory
-        import gc
-        gc.collect()
-    return _tokenizer, _model
+def set_tfidf(model):
+    global _tfidf
+    _tfidf = model
 
+def compute_stat_features(text: str) -> np.ndarray:
+    """
+    Compute 12 statistical text features.
+    Must match exactly what was used during training.
+    """
+    t = str(text).strip()
+    words = t.split()
+    sentences = re.split(r'[.!?]+', t)
+    sentences = [s for s in sentences if s.strip()]
+    analyzer = _get_analyzer()
+
+    sentiment = (analyzer.polarity_scores(t)["compound"] + 1.0) / 2.0
+
+    try:
+        fkg = float(np.clip(textstat.flesch_kincaid_grade(t), 0, 20)) / 20.0
+    except Exception:
+        fkg = 0.5
+
+    return np.array([
+        sentiment,
+        fkg,
+        len(t),
+        len(words),
+        len(sentences) if sentences else 1,
+        np.mean([len(w) for w in words]) if words else 0,
+        t.count("!") / max(len(t), 1),
+        t.count("?") / max(len(t), 1),
+        sum(1 for c in t if c.isupper()) / max(len(t), 1),
+        len(re.findall(r'[^\w\s]', t)) / max(len(t), 1),
+        len(set(words)) / max(len(words), 1),
+        float(t.count("BREAKING") + t.count("EXCLUSIVE") + t.count("SHOCKING")),
+    ], dtype=np.float32)
 
 def get_text_embedding(text: str) -> np.ndarray:
     """
-    Encode article text using DistilBERT.
-    Returns 768-dim [CLS] token embedding as numpy array.
+    Get TF-IDF sparse vector for text.
+    Returns dense numpy array.
     """
-    tokenizer, model = _load_model()
-
-    # Sanitize input
-    text = str(text).strip()
-    if not text:
-        return np.zeros(768)
-
-    inputs = tokenizer(
-        text,
-        return_tensors="pt",
-        truncation=True,
-        max_length=512,
-        padding=True
-    )
-
-    with torch.no_grad():
-        outputs = model(**inputs)
-
-    # [CLS] token — shape (1, 768)
-    cls_embedding = outputs.last_hidden_state[:, 0, :].numpy()
-    return cls_embedding.flatten()  # shape (768,)
-
-
-def get_batch_embeddings(texts: list, batch_size: int = 32) -> np.ndarray:
-    """
-    Encode a list of texts in batches.
-    Returns array of shape (n_samples, 768).
-    Used during training only.
-    """
-    tokenizer, model = _load_model()
-    all_embeddings = []
-
-    for i in range(0, len(texts), batch_size):
-        batch = texts[i:i + batch_size]
-        batch = [str(t).strip() or " " for t in batch]
-
-        inputs = tokenizer(
-            batch,
-            return_tensors="pt",
-            truncation=True,
-            max_length=512,
-            padding=True
-        )
-
-        with torch.no_grad():
-            outputs = model(**inputs)
-
-        cls = outputs.last_hidden_state[:, 0, :].numpy()
-        all_embeddings.append(cls)
-
-        if (i // batch_size) % 10 == 0:
-            print(f"  Encoded {min(i + batch_size, len(texts))}/{len(texts)} articles")
-
-    return np.vstack(all_embeddings)
+    tfidf = get_tfidf()
+    if tfidf is None:
+        raise RuntimeError("TF-IDF model not loaded. Call set_tfidf() first.")
+    vec = tfidf.transform([str(text).strip()])
+    return vec  # keep sparse — fusion.py handles it
