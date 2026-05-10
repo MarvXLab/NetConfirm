@@ -31,7 +31,21 @@ from scipy.sparse import hstack, csr_matrix
 print("✅ Imports done")
 
 # ── CELL 3: Load dataset ──────────────────────────────────
-df = pd.read_csv("/kaggle/input/welfake-dataset/WELFake_Dataset.csv")
+# Find the dataset — check common Kaggle paths
+import glob
+possible_paths = glob.glob("/kaggle/input/**/WELFake_Dataset.csv", recursive=True)
+if possible_paths:
+    csv_path = possible_paths[0]
+else:
+    # fallback — list what's available
+    import os
+    for root, dirs, files in os.walk("/kaggle/input"):
+        for f in files:
+            print(os.path.join(root, f))
+    raise FileNotFoundError("WELFake_Dataset.csv not found. Check the path above.")
+
+print(f"Loading from: {csv_path}")
+df = pd.read_csv(csv_path)
 df = df.dropna(subset=["text", "label"])
 df["text"] = df["text"].astype(str).str.strip()
 df = df[df["text"].str.len() >= 20]

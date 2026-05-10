@@ -8,7 +8,7 @@ from app.tabs import detect, history, about, news
 
 st.set_page_config(
     page_title="NetConfirm — Fake News Detector",
-    page_icon="🔍",
+    page_icon="https://cdn-icons-png.flaticon.com/128/681/681508.png",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -136,7 +136,7 @@ div[data-testid="stHeader"] {{ display:none; }}
 
 # ── Navbar ─────────────────────────────────────────────────
 nav_items = [
-    ("detect",  "https://cdn-icons-png.flaticon.com/128/2600/2600395.png",  "Detect"),
+    ("detect",  "https://cdn-icons-png.flaticon.com/128/681/681508.png",   "Detect"),
     ("news",    "https://cdn-icons-png.flaticon.com/128/11437/11437791.png", "News"),
     ("history", "https://cdn-icons-png.flaticon.com/128/8375/8375772.png",  "History"),
     ("about",   "https://cdn-icons-png.flaticon.com/128/17450/17450816.png","About"),
@@ -163,7 +163,7 @@ theme_icon = "☀️" if dark else "🌙"
 st.markdown(f"""
 <nav class='nc-nav'>
     <div class='nc-brand'>
-        <div class='nc-brand-icon'><span style='font-size:16px;'>🔍</span></div>
+        <div class='nc-brand-icon'><img src='https://cdn-icons-png.flaticon.com/128/681/681508.png' style='width:22px;height:22px;object-fit:contain;filter:brightness(0) invert(1);'></div>
         <div>
             <div class='nc-brand-name'>NetConfirm</div>
             <div class='nc-brand-sub'>AI Fake News Detector</div>
