@@ -11,15 +11,18 @@ _scaler = None
 
 
 def _get_hf_config():
-    """Get HuggingFace config from secrets or env."""
+    """Get HuggingFace config from env or secrets."""
+    token, repo = "", ""
     try:
         token = st.secrets["huggingface"]["token"]
-        repo = st.secrets["huggingface"]["repo"]
+        repo  = st.secrets["huggingface"]["repo"]
     except Exception:
+        pass
+    if not token or not repo:
         from dotenv import load_dotenv
         load_dotenv()
-        token = os.getenv("HF_TOKEN", "")
-        repo = os.getenv("HF_REPO", "")
+        token = token or os.getenv("HF_TOKEN", "")
+        repo  = repo  or os.getenv("HF_REPO", "")
     return token, repo
 
 

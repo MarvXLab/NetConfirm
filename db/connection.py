@@ -5,18 +5,17 @@ import streamlit as st
 
 def get_connection():
     """Get database connection — works both locally and on Streamlit Cloud."""
+    url = None
     try:
-        # Streamlit Cloud uses st.secrets
         url = st.secrets["database"]["url"]
     except Exception:
-        # Local dev uses .env
+        pass
+    if not url:
         from dotenv import load_dotenv
         load_dotenv()
         url = os.getenv("DATABASE_URL")
-
     if not url:
         raise ValueError("DATABASE_URL not set")
-
     return psycopg2.connect(url, cursor_factory=RealDictCursor)
 
 
