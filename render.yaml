@@ -2,8 +2,8 @@ services:
   - type: web
     name: netconfirm
     runtime: python
-    buildCommand: pip install -r requirements.txt && pip install -e .
-    startCommand: cd /opt/render/project/src && streamlit run app/main.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
+    buildCommand: pip install -r requirements.txt
+    startCommand: PYTHONPATH=/opt/render/project/src streamlit run app/main.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
     envVars:
       - key: DATABASE_URL
         sync: false
