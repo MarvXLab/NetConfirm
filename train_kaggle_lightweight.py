@@ -223,15 +223,16 @@ print(f"   feature_config.json")
 print(f"\nConfig: {config}")
 
 # ── CELL 13: Upload to HuggingFace ────────────────────────
-# from huggingface_hub import HfApi
-# HF_TOKEN = "your_token"
-# HF_REPO  = "marvxlab/netconfirm-fake-news-model"
-# api = HfApi()
-# for fname in ["tfidf_model.pkl", "xgb_model.pkl", "scaler.pkl", "feature_config.json"]:
-#     api.upload_file(
-#         path_or_fileobj=f"/kaggle/working/models/{fname}",
-#         path_in_repo=fname,
-#         repo_id=HF_REPO,
-#         token=HF_TOKEN,
-#     )
-# print("✅ Uploaded to HuggingFace")
+from huggingface_hub import HfApi
+HF_TOKEN = "your_hf_token_here"  # paste your token: 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
+HF_REPO  = "marvxlab/netconfirm-fake-news-model"
+api = HfApi()
+for fname in ["tfidf_model.pkl", "xgb_model.pkl", "scaler.pkl", "feature_config.json"]:
+    api.upload_file(
+        path_or_fileobj=f"/kaggle/working/models/{fname}",
+        path_in_repo=fname,
+        repo_id=HF_REPO,
+        token=HF_TOKEN,
+    )
+    print(f"✅ Uploaded {fname}")
+print("✅ All models uploaded to HuggingFace")
