@@ -15,6 +15,9 @@ def _load_model():
     if _model is None:
         _model = DistilBertModel.from_pretrained(MODEL_NAME)
         _model.eval()
+        # Free unused memory
+        import gc
+        gc.collect()
     return _tokenizer, _model
 
 

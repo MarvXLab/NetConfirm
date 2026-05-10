@@ -2,7 +2,7 @@ services:
   - type: web
     name: netconfirm
     runtime: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
     startCommand: PYTHONPATH=/opt/render/project/src streamlit run app/main.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
     envVars:
       - key: DATABASE_URL
@@ -10,4 +10,6 @@ services:
       - key: HF_TOKEN
         sync: false
       - key: HF_REPO
+        sync: false
+      - key: NEWSAPI_KEY
         sync: false
