@@ -1,235 +1,191 @@
 import streamlit as st
 import requests
+import os
 from datetime import datetime
 
 CATEGORIES = ["General", "Technology", "Politics", "Business", "Entertainment", "Sports", "Science", "Health"]
 
-def fetch_news(category="general", page_size=12):
-    """Fetch news from NewsAPI — free tier."""
-    try:
-        api_key = st.secrets.get("newsapi", {}).get("key", "") or ""
-        if not api_key:
-            import os
-            api_key = os.getenv("NEWSAPI_KEY", "")
-        if not api_key:
-            return None, "No NewsAPI key configured."
+def get_api_key():
+    key = os.getenv("NEWSAPI_KEY", "")
+    if not key:
+        try:
+            key = st.secrets["newsapi"]["key"]
+        except Exception:
+            pass
+    return key
 
+def fetch_news(category="general", page_size=12):
+    try:
+        api_key = get_api_key()
+        if not api_key:
+            return None, "missing_key"
         url = "https://newsapi.org/v2/top-headlines"
-        params = {
-            "category": category.lower(),
-            "language": "en",
-            "pageSize": page_size,
-            "apiKey": api_key,
-        }
+        params = {"category": category.lower(), "language": "en", "pageSize": page_size, "apiKey": api_key}
         r = requests.get(url, params=params, timeout=8)
         data = r.json()
         if data.get("status") == "ok":
             return data.get("articles", []), None
-        return None, data.get("message", "Failed to fetch news.")
-    except Exception as e:
-        return None, str(e)
-
+        return None, data.get("message", "fetch_error")
+    except Exception:
+        return None, "fetch_error"
 
 def format_date(date_str):
     try:
         dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
-        return dt.strftime("%B %d, %Y")
+        return dt.strftime("%b %d, %Y")
     except Exception:
-        return date_str or ""
-
+        return ""
 
 def render():
     dark = st.session_state.get("dark_mode", False)
-    bg = "#0f1f1a" if dark else "#f0f7f4"
-    card_bg = "#1a2e28" if dark else "#ffffff"
-    text = "#e8f5f0" if dark else "#0d1f1a"
-    sub = "#8ab5a8" if dark else "#4a7a6a"
-    tag_bg = "#dc2626"
-    accent = "#16a34a"
+    bg      = "#0f172a" if dark else "#f8fafc"
+    card    = "#1e293b" if dark else "#ffffff"
+    text    = "#f1f5f9" if dark else "#0f172a"
+    sub     = "#94a3b8" if dark else "#64748b"
+    border  = "#334155" if dark else "#e2e8f0"
+    accent  = "#dc2626"
+    green   = "#16a34a"
 
     st.markdown(f"""
     <style>
-    .news-wrap {{ background: {bg}; padding: 0; }}
-    .news-header {{
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 16px 0 12px 0; border-bottom: 1px solid {'#2a3f38' if dark else '#d1e8df'};
-        margin-bottom: 16px;
-    }}
-    .news-logo {{ font-size: 28px; font-weight: 900; color: {text}; letter-spacing: -1px; }}
-    .news-logo span {{ color: {accent}; }}
-    .news-date {{ font-size: 12px; color: {sub}; }}
-    .ticker-wrap {{
-        background: {'#1a2e28' if dark else '#e8f5f0'};
-        border-radius: 8px; padding: 10px 16px;
-        display: flex; align-items: center; gap: 12px;
-        margin-bottom: 20px; overflow: hidden;
-    }}
-    .ticker-label {{
-        background: {tag_bg}; color: white; font-size: 11px; font-weight: 700;
-        padding: 3px 10px; border-radius: 4px; white-space: nowrap; flex-shrink: 0;
-    }}
-    .ticker-text {{ font-size: 13px; color: {text}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
-    .hero-card {{
-        background: {card_bg}; border-radius: 16px; overflow: hidden;
-        margin-bottom: 24px; box-shadow: 0 4px 20px rgba(0,0,0,{'0.3' if dark else '0.08'});
-    }}
-    .hero-img {{ width: 100%; height: 280px; object-fit: cover; }}
-    .hero-body {{ padding: 20px; }}
-    .hero-meta {{ display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }}
-    .hero-date {{ font-size: 12px; color: {sub}; }}
-    .hero-tag {{ background: {tag_bg}; color: white; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }}
-    .hero-title {{ font-size: 22px; font-weight: 800; color: {text}; line-height: 1.3; margin: 0; }}
-    .hero-desc {{ font-size: 13px; color: {sub}; margin-top: 8px; line-height: 1.5; }}
-    .section-header {{
-        display: flex; align-items: center; justify-content: space-between;
-        margin: 24px 0 16px 0;
-    }}
-    .section-title {{ font-size: 20px; font-weight: 800; color: {text}; }}
-    .news-card {{
-        background: {card_bg}; border-radius: 12px; overflow: hidden;
-        box-shadow: 0 2px 12px rgba(0,0,0,{'0.25' if dark else '0.06'});
-        height: 100%; transition: transform 0.2s;
-    }}
-    .news-card:hover {{ transform: translateY(-2px); }}
-    .news-card-img {{ width: 100%; height: 140px; object-fit: cover; }}
-    .news-card-body {{ padding: 14px; }}
-    .news-card-tag {{ display: inline-block; background: {tag_bg}; color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-bottom: 8px; }}
-    .news-card-title {{ font-size: 14px; font-weight: 700; color: {text}; line-height: 1.4; margin: 0; }}
-    .news-card-source {{ font-size: 11px; color: {sub}; margin-top: 6px; }}
-    .cat-btn {{
-        display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 12px;
-        font-weight: 600; cursor: pointer; margin: 0 4px 8px 0;
-        background: {'#2a3f38' if dark else '#e8f5f0'}; color: {text};
-        border: 1px solid {'#3a5f50' if dark else '#c1ddd4'};
-    }}
-    .cat-btn.active {{ background: {accent}; color: white; border-color: {accent}; }}
+    .nc-news-hero {{ border-radius:16px; overflow:hidden; margin-bottom:24px;
+        box-shadow:0 4px 24px rgba(0,0,0,{'0.4' if dark else '0.1'}); background:{card}; }}
+    .nc-news-hero img {{ width:100%; height:320px; object-fit:cover; display:block; }}
+    .nc-hero-body {{ padding:20px 24px; }}
+    .nc-hero-tag {{ display:inline-block; background:{accent}; color:white; font-size:11px;
+        font-weight:700; padding:3px 12px; border-radius:20px; margin-bottom:10px; }}
+    .nc-hero-title {{ font-size:22px; font-weight:800; color:{text}; line-height:1.35; margin:0 0 8px 0; }}
+    .nc-hero-meta {{ font-size:12px; color:{sub}; }}
+    .nc-card {{ background:{card}; border-radius:12px; overflow:hidden; height:100%;
+        box-shadow:0 2px 12px rgba(0,0,0,{'0.3' if dark else '0.06'}); transition:transform 0.15s; }}
+    .nc-card:hover {{ transform:translateY(-3px); }}
+    .nc-card img {{ width:100%; height:150px; object-fit:cover; display:block; }}
+    .nc-card-body {{ padding:14px; }}
+    .nc-card-tag {{ display:inline-block; background:{accent}; color:white; font-size:10px;
+        font-weight:700; padding:2px 8px; border-radius:20px; margin-bottom:8px; }}
+    .nc-card-title {{ font-size:13px; font-weight:700; color:{text}; line-height:1.4; margin:0; }}
+    .nc-card-meta {{ font-size:11px; color:{sub}; margin-top:6px; }}
+    .nc-list-item {{ background:{card}; border-radius:10px; padding:14px 16px;
+        margin-bottom:8px; border-left:3px solid {green};
+        box-shadow:0 1px 6px rgba(0,0,0,{'0.2' if dark else '0.04'}); }}
+    .nc-list-title {{ font-size:14px; font-weight:600; color:{text}; margin:0 0 4px 0; line-height:1.4; }}
+    .nc-list-meta {{ font-size:11px; color:{sub}; margin:0; }}
+    .nc-ticker {{ background:{'#1e293b' if dark else '#f1f5f9'}; border-radius:8px;
+        padding:10px 16px; display:flex; align-items:center; gap:12px;
+        margin-bottom:20px; border:1px solid {border}; }}
+    .nc-ticker-badge {{ background:{accent}; color:white; font-size:10px; font-weight:700;
+        padding:3px 10px; border-radius:4px; white-space:nowrap; flex-shrink:0; }}
+    .nc-ticker-text {{ font-size:12px; color:{sub}; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }}
+    .nc-section {{ font-size:18px; font-weight:800; color:{text}; margin:24px 0 14px 0;
+        padding-bottom:8px; border-bottom:2px solid {border}; }}
     </style>
     """, unsafe_allow_html=True)
 
     # Header
     today = datetime.now().strftime("%A, %B %d, %Y")
-    st.markdown(f"""
-    <div class='news-header'>
-        <div>
-            <div class='news-logo'>net<span>confirm</span></div>
-            <div class='news-date'>{today}</div>
-        </div>
-        <div style='font-size:12px;color:{sub};font-weight:600;'>Verified News Feed</div>
-    </div>
-    """, unsafe_allow_html=True)
+    col_h, col_d = st.columns([3, 1])
+    with col_h:
+        st.markdown(f"<p style='font-size:13px;color:{sub};margin:0;'>{today}</p>", unsafe_allow_html=True)
+    with col_d:
+        st.markdown(f"<p style='font-size:12px;color:{sub};text-align:right;margin:0;font-weight:600;'>Verified News Feed</p>", unsafe_allow_html=True)
+
+    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
 
     # Category selector
     selected_cat = st.session_state.get("news_category", "General")
     cols = st.columns(len(CATEGORIES))
     for i, cat in enumerate(CATEGORIES):
         with cols[i]:
-            if st.button(cat, key=f"cat_{cat}", use_container_width=True,
-                        type="primary" if cat == selected_cat else "secondary"):
+            if st.button(cat, key=f"nc_{cat}", use_container_width=True,
+                         type="primary" if cat == selected_cat else "secondary"):
                 st.session_state["news_category"] = cat
                 st.rerun()
 
-    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
 
-    # Fetch news
-    with st.spinner("Loading latest news..."):
+    # Fetch
+    with st.spinner(""):
         articles, error = fetch_news(selected_cat)
 
-    if error:
-        st.error(f"Could not load news: {error}")
-        st.info("To enable the news feed, add your NewsAPI key. Get a free key at newsapi.org")
+    if error == "missing_key":
+        st.markdown(f"""
+        <div style='background:{"#1e293b" if dark else "#f1f5f9"};border:1px solid {border};
+            border-radius:12px;padding:32px;text-align:center;'>
+            <p style='font-size:32px;margin:0 0 12px 0;'>📰</p>
+            <p style='font-size:16px;font-weight:700;color:{text};margin:0 0 6px 0;'>News Feed Setup Required</p>
+            <p style='font-size:13px;color:{sub};margin:0;'>Add your NEWSAPI_KEY environment variable in Render to enable live news.</p>
+        </div>
+        """, unsafe_allow_html=True)
         return
 
-    if not articles:
-        st.info("No articles found for this category.")
+    if error or not articles:
+        st.markdown(f"""
+        <div style='background:{"#1e293b" if dark else "#f1f5f9"};border:1px solid {border};
+            border-radius:12px;padding:32px;text-align:center;'>
+            <p style='font-size:32px;margin:0 0 12px 0;'>📡</p>
+            <p style='font-size:16px;font-weight:700;color:{text};margin:0 0 6px 0;'>Could not load news</p>
+            <p style='font-size:13px;color:{sub};margin:0;'>Please try again later.</p>
+        </div>
+        """, unsafe_allow_html=True)
         return
 
-    # Filter out articles without images
     with_img = [a for a in articles if a.get("urlToImage")]
-    without_img = [a for a in articles if not a.get("urlToImage")]
-    all_articles = with_img + without_img
+    rest = [a for a in articles if not a.get("urlToImage")]
+    all_articles = with_img + rest
 
-    # Ticker — latest headlines
-    headlines = " · ".join([a["title"] for a in all_articles[:5] if a.get("title")])
+    # Ticker
+    headlines = " · ".join([a["title"] for a in all_articles[:4] if a.get("title")])
     st.markdown(f"""
-    <div class='ticker-wrap'>
-        <span class='ticker-label'>Latest</span>
-        <span class='ticker-text'>{headlines}</span>
+    <div class='nc-ticker'>
+        <span class='nc-ticker-badge'>LIVE</span>
+        <span class='nc-ticker-text'>{headlines}</span>
     </div>
     """, unsafe_allow_html=True)
 
-    # Hero article
+    # Hero
     if all_articles:
-        hero = all_articles[0]
-        hero_img = hero.get("urlToImage", "")
-        hero_title = hero.get("title", "")
-        hero_desc = hero.get("description", "")
-        hero_date = format_date(hero.get("publishedAt", ""))
-        hero_source = hero.get("source", {}).get("name", "")
-        hero_url = hero.get("url", "#")
-
-        img_html = f"<img src='{hero_img}' class='hero-img' onerror=\"this.style.display='none'\">" if hero_img else ""
+        h = all_articles[0]
+        img_html = f"<img src='{h.get('urlToImage','')}' onerror=\"this.style.display='none'\">" if h.get("urlToImage") else ""
         st.markdown(f"""
-        <a href='{hero_url}' target='_blank' style='text-decoration:none;'>
-        <div class='hero-card'>
+        <a href='{h.get("url","#")}' target='_blank' style='text-decoration:none;'>
+        <div class='nc-news-hero'>
             {img_html}
-            <div class='hero-body'>
-                <div class='hero-meta'>
-                    <span class='hero-date'>📅 {hero_date}</span>
-                    <span class='hero-tag'>{hero_source or selected_cat}</span>
-                </div>
-                <p class='hero-title'>{hero_title}</p>
-                <p class='hero-desc'>{hero_desc or ''}</p>
+            <div class='nc-hero-body'>
+                <span class='nc-hero-tag'>{h.get("source",{}).get("name","") or selected_cat}</span>
+                <p class='nc-hero-title'>{h.get("title","")}</p>
+                <p class='nc-hero-meta'>{format_date(h.get("publishedAt",""))} · {h.get("description","")[:120] if h.get("description") else ""}</p>
             </div>
-        </div>
-        </a>
+        </div></a>
         """, unsafe_allow_html=True)
 
-    # Highlight grid
-    st.markdown(f"""
-    <div class='section-header'>
-        <span class='section-title'>Highlight News</span>
-    </div>
-    """, unsafe_allow_html=True)
-
-    grid_articles = all_articles[1:7]
-    if grid_articles:
-        cols = st.columns(3)
-        for i, article in enumerate(grid_articles):
-            with cols[i % 3]:
-                img = article.get("urlToImage", "")
-                title = article.get("title", "")
-                source = article.get("source", {}).get("name", "")
-                url = article.get("url", "#")
-                date = format_date(article.get("publishedAt", ""))
-                img_html = f"<img src='{img}' class='news-card-img' onerror=\"this.style.display='none'\">" if img else ""
+    # Grid
+    st.markdown(f"<div class='nc-section'>Highlight News</div>", unsafe_allow_html=True)
+    grid = all_articles[1:7]
+    if grid:
+        c1, c2, c3 = st.columns(3)
+        for i, a in enumerate(grid):
+            with [c1, c2, c3][i % 3]:
+                img_html = f"<img src='{a.get('urlToImage','')}' onerror=\"this.style.display='none'\">" if a.get("urlToImage") else ""
                 st.markdown(f"""
-                <a href='{url}' target='_blank' style='text-decoration:none;'>
-                <div class='news-card'>
-                    {img_html}
-                    <div class='news-card-body'>
-                        <span class='news-card-tag'>{source or selected_cat}</span>
-                        <p class='news-card-title'>{title}</p>
-                        <p class='news-card-source'>📅 {date}</p>
+                <a href='{a.get("url","#")}' target='_blank' style='text-decoration:none;'>
+                <div class='nc-card'>{img_html}
+                    <div class='nc-card-body'>
+                        <span class='nc-card-tag'>{a.get("source",{}).get("name","") or selected_cat}</span>
+                        <p class='nc-card-title'>{a.get("title","")}</p>
+                        <p class='nc-card-meta'>{format_date(a.get("publishedAt",""))}</p>
                     </div>
-                </div>
-                </a>
+                </div></a>
                 """, unsafe_allow_html=True)
                 st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
 
-    # More articles list
+    # List
     if len(all_articles) > 7:
-        st.markdown(f"<div class='section-title' style='margin:20px 0 12px 0;'>More Stories</div>", unsafe_allow_html=True)
-        for article in all_articles[7:]:
-            title = article.get("title", "")
-            source = article.get("source", {}).get("name", "")
-            url = article.get("url", "#")
-            date = format_date(article.get("publishedAt", ""))
+        st.markdown(f"<div class='nc-section'>More Stories</div>", unsafe_allow_html=True)
+        for a in all_articles[7:]:
             st.markdown(f"""
-            <a href='{url}' target='_blank' style='text-decoration:none;'>
-            <div style='background:{card_bg};border-radius:10px;padding:14px 16px;margin-bottom:8px;
-                        border-left:3px solid {accent};'>
-                <p style='font-size:14px;font-weight:600;color:{text};margin:0 0 4px 0;'>{title}</p>
-                <p style='font-size:11px;color:{sub};margin:0;'>{source} · {date}</p>
-            </div>
-            </a>
+            <a href='{a.get("url","#")}' target='_blank' style='text-decoration:none;'>
+            <div class='nc-list-item'>
+                <p class='nc-list-title'>{a.get("title","")}</p>
+                <p class='nc-list-meta'>{a.get("source",{}).get("name","")} · {format_date(a.get("publishedAt",""))}</p>
+            </div></a>
             """, unsafe_allow_html=True)
