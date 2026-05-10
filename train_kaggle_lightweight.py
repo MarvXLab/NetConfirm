@@ -178,13 +178,12 @@ xgb_model = XGBClassifier(
     random_state=42,
     tree_method="hist",
     n_jobs=-1,
-    use_label_encoder=False,
+    early_stopping_rounds=30,
 )
 print("Training XGBoost...")
 xgb_model.fit(
     X_tr, y_tr,
     eval_set=[(X_val, y_val)],
-    early_stopping_rounds=30,
     verbose=50,
 )
 print("✅ Training complete")
