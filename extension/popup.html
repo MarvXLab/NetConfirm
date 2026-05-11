@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NetConfirm</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 360px;
+      min-height: 200px;
+      background: #0f172a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #f1f5f9;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-icon {
+      width: 30px; height: 30px;
+      background: #1a1a2e;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; color: white;
+    }
+    .brand-name { font-size: 15px; font-weight: 800; color: #f1f5f9; }
+    .brand-sub  { font-size: 10px; color: #94a3b8; }
+    .settings-btn {
+      background: none; border: none; cursor: pointer;
+      color: #94a3b8; font-size: 18px; padding: 4px;
+      border-radius: 6px; transition: background 0.15s;
+    }
+    .settings-btn:hover { background: #334155; }
+
+    /* ── Body ── */
+    .body { padding: 16px; }
+
+    /* ── URL bar ── */
+    .url-bar {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 14px;
+    }
+    .url-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+    .url-text  { font-size: 11px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      width: 100%; padding: 11px;
+      background: #1a1a2e; color: white;
+      border: none; border-radius: 8px;
+      font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .btn-primary:hover { background: #2d2d4e; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* ── Loading ── */
+    .loading {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 0;
+      gap: 12px;
+    }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid #334155;
+      border-top-color: #3b82f6;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 13px; color: #94a3b8; }
+
+    /* ── Result ── */
+    .result { display: none; }
+
+    .verdict-banner {
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 14px;
+      border-left: 5px solid;
+    }
+    .verdict-banner.fake { background: #2d1515; border-color: #dc2626; }
+    .verdict-banner.real { background: #0f2d15; border-color: #16a34a; }
+
+    .verdict-row { display: flex; align-items: center; gap: 10px; }
+    .verdict-icon { font-size: 28px; }
+    .verdict-label { font-size: 22px; font-weight: 800; }
+    .verdict-label.fake { color: #dc2626; }
+    .verdict-label.real { color: #16a34a; }
+    .verdict-conf { font-size: 12px; color: #94a3b8; margin-top: 3px; }
+
+    /* ── Gauge bar ── */
+    .gauge-wrap { margin-bottom: 14px; }
+    .gauge-header {
+      display: flex; justify-content: space-between;
+      font-size: 11px; color: #94a3b8; margin-bottom: 5px;
+    }
+    .gauge-track {
+      height: 8px; background: #334155;
+      border-radius: 4px; overflow: hidden;
+    }
+    .gauge-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+
+    /* ── Signals ── */
+    .signals { margin-bottom: 14px; }
+    .signal-row {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .signal-label { font-size: 11px; color: #94a3b8; flex: 1; }
+    .signal-bar-wrap { flex: 2; height: 5px; background: #334155; border-radius: 3px; margin: 0 8px; }
+    .signal-bar { height: 100%; border-radius: 3px; }
+    .signal-val { font-size: 11px; font-weight: 700; color: #f1f5f9; min-width: 36px; text-align: right; }
+
+    /* ── Language badge ── */
+    .lang-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #1e3a5f; border: 1px solid #3b82f6;
+      border-radius: 6px; padding: 4px 10px;
+      font-size: 11px; color: #93c5fd; font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    /* ── Open in app ── */
+    .open-app {
+      width: 100%; padding: 9px;
+      background: transparent;
+      color: #3b82f6;
+      border: 1px solid #3b82f6;
+      border-radius: 8px;
+      font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+      margin-top: 4px;
+    }
+    .open-app:hover { background: #1e3a5f; }
+
+    /* ── Error ── */
+    .error-box {
+      display: none;
+      background: #2d1515;
+      border: 1px solid #dc262640;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 12px; color: #fca5a5;
+      line-height: 1.5;
+    }
+
+    /* ── No key warning ── */
+    .no-key {
+      display: none;
+      background: #2d2510;
+      border: 1px solid #f59e0b40;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 12px; color: #fcd34d;
+      line-height: 1.6;
+    }
+    .no-key a { color: #fbbf24; cursor: pointer; text-decoration: underline; }
+
+    /* ── Footer ── */
+    .footer {
+      border-top: 1px solid #334155;
+      padding: 8px 16px;
+      font-size: 10px; color: #475569;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">NC</div>
+      <div>
+        <div class="brand-name">NetConfirm</div>
+        <div class="brand-sub">AI Fake News Detector</div>
+      </div>
+    </div>
+    <button class="settings-btn" id="settingsBtn" title="Settings">⚙️</button>
+  </div>
+
+  <!-- Body -->
+  <div class="body">
+
+    <!-- Current page URL -->
+    <div class="url-bar">
+      <div class="url-label">Current Page</div>
+      <div class="url-text" id="pageUrl">Loading...</div>
+    </div>
+
+    <!-- No API key warning -->
+    <div class="no-key" id="noKeyBox">
+      ⚠️ No API key set.<br>
+      <a id="goSettings">Open Settings</a> to add your NetConfirm API key.
+    </div>
+
+    <!-- Analyse button -->
+    <button class="btn-primary" id="analyseBtn">🔍 Analyse This Page</button>
+
+    <!-- Loading -->
+    <div class="loading" id="loadingBox">
+      <div class="spinner"></div>
+      <div class="loading-text" id="loadingText">Extracting article text...</div>
+    </div>
+
+    <!-- Error -->
+    <div class="error-box" id="errorBox"></div>
+
+    <!-- Result -->
+    <div class="result" id="resultBox">
+
+      <!-- Language badge (shown if translated) -->
+      <div class="lang-badge" id="langBadge" style="display:none;"></div>
+
+      <!-- Verdict banner -->
+      <div class="verdict-banner" id="verdictBanner">
+        <div class="verdict-row">
+          <span class="verdict-icon" id="verdictIcon"></span>
+          <div>
+            <div class="verdict-label" id="verdictLabel"></div>
+            <div class="verdict-conf" id="verdictConf"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Authenticity gauge -->
+      <div class="gauge-wrap">
+        <div class="gauge-header">
+          <span>Authenticity Score</span>
+          <span id="gaugeVal"></span>
+        </div>
+        <div class="gauge-track">
+          <div class="gauge-fill" id="gaugeFill"></div>
+        </div>
+      </div>
+
+      <!-- Signal bars -->
+      <div class="signals" id="signalsBox"></div>
+
+      <!-- Open in app -->
+      <button class="open-app" id="openAppBtn">↗ Open Full Analysis in NetConfirm</button>
+
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">NetConfirm v1.0 · Powered by XGBoost + TF-IDF</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
