@@ -239,7 +239,8 @@ def render():
             account_age = st.number_input("Account Age (days)", 0, 36500, 365, 1)
 
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
-        clicked = st.button("🔍  Analyse Article", type="primary", use_container_width=True)
+        clicked = st.button("Analyse Article", type="primary", use_container_width=True,
+                             icon=":material/analytics:")
 
     with col_info:
         st.markdown(f"""

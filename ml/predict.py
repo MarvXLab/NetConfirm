@@ -14,16 +14,21 @@ _tfidf     = None
 
 def _get_hf_config():
     token, repo = "", ""
+    # 1. Try st.secrets
     try:
         token = st.secrets["huggingface"]["token"]
         repo  = st.secrets["huggingface"]["repo"]
     except Exception:
         pass
+    # 2. Fall back to env vars (Render injects these)
     if not token or not repo:
-        from dotenv import load_dotenv
-        load_dotenv()
+        try:
+            from dotenv import load_dotenv
+            load_dotenv()
+        except Exception:
+            pass
         token = token or os.getenv("HF_TOKEN", "")
-        repo  = repo  or os.getenv("HF_REPO", "")
+        repo  = repo  or os.getenv("HF_REPO", "marvxlab/netconfirm-fake-news-model")
     return token, repo
 
 

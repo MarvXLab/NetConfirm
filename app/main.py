@@ -158,7 +158,7 @@ for p, icon, label in nav_items:
         <img src='{icon}'>{label}
     </button>"""
 
-theme_icon = "☀️" if dark else "🌙"
+theme_icon_url = "https://cdn-icons-png.flaticon.com/128/66275/66275.png" if dark else "https://cdn-icons-png.flaticon.com/128/39857/39857.png"
 
 st.markdown(f"""
 <nav class='nc-nav'>
@@ -171,7 +171,7 @@ st.markdown(f"""
     </div>
     <div class='nc-nav-links'>{links_html}</div>
     <div class='nc-nav-right'>
-        <button class='nc-theme-btn' id='theme-btn'>{theme_icon}</button>
+        <button class='nc-theme-btn' id='theme-btn'><img src='{theme_icon_url}' style='width:18px;height:18px;object-fit:contain;filter:{"brightness(0) invert(1)" if dark else F};'></button>
         <button class='nc-hamburger' id='hamburger-btn'>
             <span></span><span></span><span></span>
         </button>
@@ -180,7 +180,7 @@ st.markdown(f"""
 <div class='nc-mobile-menu' id='mobile-menu'>
     {mobile_links_html}
     <div style='margin-top:auto;padding-top:16px;border-top:1px solid {border};'>
-        <button class='nc-mobile-link' id='mobile-theme-btn'>{theme_icon} {'Light Mode' if dark else 'Dark Mode'}</button>
+        <button class='nc-mobile-link' id='mobile-theme-btn'><img src='{theme_icon_url}' style='width:20px;height:20px;object-fit:contain;filter:{F};margin-right:8px;'> {'Light Mode' if dark else 'Dark Mode'}</button>
     </div>
 </div>
 <script>
