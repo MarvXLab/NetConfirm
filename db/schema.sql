@@ -49,3 +49,18 @@ CREATE TABLE IF NOT EXISTS domain_reputation (
 CREATE INDEX IF NOT EXISTS idx_domain_reputation_domain ON domain_reputation(domain);
 CREATE INDEX IF NOT EXISTS idx_domain_reputation_trust  ON domain_reputation(trust_score DESC);
 CREATE INDEX IF NOT EXISTS idx_domain_reputation_flagged ON domain_reputation(flagged);
+
+CREATE TABLE IF NOT EXISTS api_keys (
+    id          SERIAL PRIMARY KEY,
+    name        VARCHAR(100) NOT NULL DEFAULT 'default',
+    email       VARCHAR(255) NOT NULL UNIQUE,
+    key_hash    VARCHAR(64)  NOT NULL UNIQUE,
+    key_prefix  VARCHAR(12)  NOT NULL,
+    active      BOOLEAN      NOT NULL DEFAULT TRUE,
+    requests    INTEGER      NOT NULL DEFAULT 0,
+    created_at  TIMESTAMP DEFAULT NOW(),
+    last_used   TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_api_keys_hash   ON api_keys(key_hash);
+CREATE INDEX IF NOT EXISTS idx_api_keys_email  ON api_keys(email);

@@ -297,6 +297,62 @@ def get_reputation_stats():
         conn.close()
 
 
+# ── API Key Management ───────────────────────────────────────────────────────
+
+def register_api_key(email: str, name: str, key_hash: str, key_prefix: str):
+    """Store a new self-service API key."""
+    sql = """
+        INSERT INTO api_keys (email, name, key_hash, key_prefix)
+        VALUES (%s, %s, %s, %s)
+        ON CONFLICT (email) DO UPDATE SET
+            key_hash   = EXCLUDED.key_hash,
+            key_prefix = EXCLUDED.key_prefix,
+            name       = EXCLUDED.name,
+            active     = TRUE,
+            created_at = NOW()
+        RETURNING id, key_prefix
+    """
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql, (email.lower().strip(), name, key_hash, key_prefix))
+            row = cur.fetchone()
+        conn.commit()
+        return row
+    finally:
+        conn.close()
+
+
+def validate_api_key_db(key_hash: str) -> bool:
+    """Check if a key hash exists and is active, and bump last_used + requests."""
+    sql = """
+        UPDATE api_keys
+        SET requests = requests + 1, last_used = NOW()
+        WHERE key_hash = %s AND active = TRUE
+        RETURNING id
+    """
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql, (key_hash,))
+            return cur.fetchone() is not None
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_key_by_email(email: str):
+    """Look up key info by email."""
+    sql = "SELECT id, name, key_prefix, active, requests, created_at, last_used FROM api_keys WHERE email = %s"
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql, (email.lower().strip(),))
+            return cur.fetchone()
+    finally:
+        conn.close()
+
+
 def log_model_run(model_name, accuracy, f1_score, precision, recall, notes=""):
     """Log a training run for model versioning."""
     sql = """
