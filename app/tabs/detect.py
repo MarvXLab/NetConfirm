@@ -2,6 +2,7 @@ import streamlit as st
 import plotly.graph_objects as go
 from ml.predict import predict
 from ml.metadata_encoder import validate_metadata_inputs
+from ml.explainer import get_shap_explanation
 from db.queries import insert_detection
 
 F = "invert(14%) sepia(20%) saturate(800%) hue-rotate(190deg) brightness(80%) contrast(95%)"
@@ -57,12 +58,11 @@ def render_speedometer(real_prob: float) -> go.Figure:
 
 
 def render():
-    dark   = st.session_state.get("dark_mode", False)
-    card   = "#1e293b" if dark else "#ffffff"
-    text   = "#f1f5f9" if dark else "#0f172a"
-    sub    = "#94a3b8" if dark else "#64748b"
-    border = "#334155" if dark else "#e2e8f0"
-    muted  = "#1e293b" if dark else "#f8fafc"
+    card   = "#1e293b"
+    text   = "#f1f5f9"
+    sub    = "#94a3b8"
+    border = "#334155"
+    muted  = "#162032"
 
     if "detect_result" not in st.session_state:
         st.session_state["detect_result"] = None
@@ -153,7 +153,7 @@ def render():
                         <span style='font-size:12px;color:{sub};font-weight:500;'>{label}</span>
                         <span style='font-size:12px;font-weight:700;color:{text};'>{float(value):.3f}</span>
                     </div>
-                    <div style='background:{"#334155" if dark else "#f1f5f9"};border-radius:4px;height:6px;'>
+                    <div style='background:#334155;border-radius:4px;height:6px;'>
                         <div style='background:{color};border-radius:4px;height:6px;width:{bar_w}%;'></div>
                     </div>
                 </div>
@@ -169,6 +169,127 @@ def render():
             ⚠ NetConfirm provides probabilistic analysis, not definitive fact-checking. Always verify with primary sources.
         </p>
         """, unsafe_allow_html=True)
+
+        # ── SHAP EXPLANATION PANEL ────────────────────────
+        st.markdown(f"""
+        <div style='margin-top:28px;border-top:1px solid {border};padding-top:24px;'>
+            <div style='display:flex;align-items:center;gap:10px;margin-bottom:6px;'>
+                <span style='font-size:20px;'>🔬</span>
+                <span style='font-size:16px;font-weight:800;color:{text};'>Why did the AI decide this?</span>
+            </div>
+            <p style='font-size:13px;color:{sub};margin:0 0 20px 0;'>
+                SHAP values show exactly which words and signals pushed the verdict — red = towards FAKE, green = towards REAL.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        with st.spinner("Computing explanation..."):
+            try:
+                word_scores, feature_scores, base_value = get_shap_explanation(
+                    text=inputs["article_text"],
+                    trust_score=inputs["trust_score"],
+                    follower_count=inputs["follower_count"],
+                    account_age=inputs["account_age"],
+                )
+                shap_ok = True
+            except Exception as e:
+                shap_ok = False
+                st.warning(f"Explanation unavailable: {e}")
+
+        if shap_ok:
+            col_words, col_feats = st.columns([1, 1])
+
+            # ── Top words chart ───────────────────────────
+            with col_words:
+                st.markdown(f"""
+                <div style='background:{card};border:1px solid {border};border-radius:12px;padding:20px;'>
+                    <p style='font-size:12px;font-weight:700;color:{text};margin:0 0 4px 0;
+                        text-transform:uppercase;letter-spacing:0.5px;'>🔤 Top Influential Words</p>
+                    <p style='font-size:11px;color:{sub};margin:0 0 16px 0;'>Words with the biggest impact on the verdict</p>
+                """, unsafe_allow_html=True)
+
+                if word_scores:
+                    top_words = word_scores[:12]
+                    fig_words = go.Figure(go.Bar(
+                        x=[v for _, v in top_words],
+                        y=[w for w, _ in top_words],
+                        orientation="h",
+                        marker_color=["#dc2626" if v > 0 else "#16a34a" for _, v in top_words],
+                        text=[f"{v:+.3f}" for _, v in top_words],
+                        textposition="outside",
+                        textfont={"size": 10, "color": "#94a3b8"},
+                    ))
+                    fig_words.update_layout(
+                        height=320, margin={"t": 10, "b": 10, "l": 10, "r": 60},
+                        paper_bgcolor="#1e293b", plot_bgcolor="#1e293b",
+                        font={"family": "Inter, sans-serif", "color": "#f1f5f9"},
+                        xaxis={"showgrid": False, "zeroline": True,
+                               "zerolinecolor": "#334155", "tickfont": {"size": 10}},
+                        yaxis={"tickfont": {"size": 11}, "autorange": "reversed"},
+                    )
+                    st.plotly_chart(fig_words, use_container_width=True)
+                else:
+                    st.markdown(f"<p style='font-size:12px;color:{sub};'>No significant word signals found.</p>",
+                                unsafe_allow_html=True)
+                st.markdown("</div>", unsafe_allow_html=True)
+
+            # ── Feature signals chart ─────────────────────
+            with col_feats:
+                st.markdown(f"""
+                <div style='background:{card};border:1px solid {border};border-radius:12px;padding:20px;'>
+                    <p style='font-size:12px;font-weight:700;color:{text};margin:0 0 4px 0;
+                        text-transform:uppercase;letter-spacing:0.5px;'>📊 Signal Contributions</p>
+                    <p style='font-size:11px;color:{sub};margin:0 0 16px 0;'>How each signal pushed the model's decision</p>
+                """, unsafe_allow_html=True)
+
+                top_feats = feature_scores[:10]
+                fig_feats = go.Figure(go.Bar(
+                    x=[v for _, v in top_feats],
+                    y=[n for n, _ in top_feats],
+                    orientation="h",
+                    marker_color=["#dc2626" if v > 0 else "#16a34a" for _, v in top_feats],
+                    text=[f"{v:+.3f}" for _, v in top_feats],
+                    textposition="outside",
+                    textfont={"size": 10, "color": "#94a3b8"},
+                ))
+                fig_feats.update_layout(
+                    height=320, margin={"t": 10, "b": 10, "l": 10, "r": 60},
+                    paper_bgcolor="#1e293b", plot_bgcolor="#1e293b",
+                    font={"family": "Inter, sans-serif", "color": "#f1f5f9"},
+                    xaxis={"showgrid": False, "zeroline": True,
+                           "zerolinecolor": "#334155", "tickfont": {"size": 10}},
+                    yaxis={"tickfont": {"size": 11}, "autorange": "reversed"},
+                )
+                st.plotly_chart(fig_feats, use_container_width=True)
+                st.markdown("</div>", unsafe_allow_html=True)
+
+            # ── Highlighted article text ──────────────────
+            fake_words  = {w for w, v in word_scores if v > 0.001}
+            real_words  = {w for w, v in word_scores if v < -0.001}
+            article_preview = inputs["article_text"][:800]
+            highlighted = ""
+            for word in article_preview.split():
+                clean = word.lower().strip(".,!?\"'();:")
+                if clean in fake_words:
+                    highlighted += f"<mark style='background:#dc262630;color:#fca5a5;border-radius:3px;padding:1px 3px;'>{word}</mark> "
+                elif clean in real_words:
+                    highlighted += f"<mark style='background:#16a34a30;color:#86efac;border-radius:3px;padding:1px 3px;'>{word}</mark> "
+                else:
+                    highlighted += f"{word} "
+
+            st.markdown(f"""
+            <div style='background:{card};border:1px solid {border};border-radius:12px;
+                padding:20px;margin-top:16px;'>
+                <p style='font-size:12px;font-weight:700;color:{text};margin:0 0 4px 0;
+                    text-transform:uppercase;letter-spacing:0.5px;'>🖍️ Highlighted Article</p>
+                <p style='font-size:11px;color:{sub};margin:0 0 14px 0;'>
+                    <span style='color:#fca5a5;'>■</span> pushes toward FAKE &nbsp;
+                    <span style='color:#86efac;'>■</span> pushes toward REAL
+                </p>
+                <p style='font-size:13px;color:{text};line-height:1.9;margin:0;'>{highlighted}{'...' if len(inputs["article_text"]) > 800 else ''}</p>
+            </div>
+            """, unsafe_allow_html=True)
+
         return
 
     # ── INPUT VIEW ────────────────────────────────────────
