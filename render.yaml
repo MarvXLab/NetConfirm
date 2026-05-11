@@ -13,3 +13,22 @@ services:
         sync: false
       - key: NEWSAPI_KEY
         sync: false
+      - key: NETCONFIRM_API_KEY
+        sync: false
+      - key: API_BASE_URL
+        sync: false
+
+  - type: web
+    name: netconfirm-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: PYTHONPATH=/opt/render/project/src uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: HF_TOKEN
+        sync: false
+      - key: HF_REPO
+        sync: false
+      - key: NETCONFIRM_API_KEY
+        sync: false

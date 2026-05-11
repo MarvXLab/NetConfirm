@@ -15,7 +15,7 @@ for _p in ["/opt/render/.streamlit", "/opt/render/project/src/.streamlit"]:
 
 import streamlit as st
 from db.connection import run_schema
-from app.tabs import detect, history, about, news, batch, trending, reputation
+from app.tabs import detect, history, about, news, batch, trending, reputation, api_playground
 
 st.set_page_config(
     page_title="NetConfirm — Fake News Detector",
@@ -138,13 +138,14 @@ st.markdown(f"""
 
 # ── Tab nav using Streamlit buttons (no new-tab issue) ──────
 nav_items = [
-    ("detect",     "https://cdn-icons-png.flaticon.com/128/681/681508.png",    "🔍 Detect"),
-    ("batch",      "https://cdn-icons-png.flaticon.com/128/9496/9496543.png",   "📋 Batch Scan"),
-    ("trending",   "https://cdn-icons-png.flaticon.com/128/3281/3281289.png",   "📈 Trending"),
-    ("reputation", "https://cdn-icons-png.flaticon.com/128/2910/2910791.png",   "🌐 Reputation"),
-    ("news",       "https://cdn-icons-png.flaticon.com/128/11437/11437791.png", "📰 News"),
-    ("history",    "https://cdn-icons-png.flaticon.com/128/8375/8375772.png",   "🕓 History"),
-    ("about",      "https://cdn-icons-png.flaticon.com/128/17450/17450816.png", "ℹ️ About"),
+    ("detect",      "https://cdn-icons-png.flaticon.com/128/681/681508.png",    "🔍 Detect"),
+    ("batch",       "https://cdn-icons-png.flaticon.com/128/9496/9496543.png",   "📋 Batch Scan"),
+    ("trending",    "https://cdn-icons-png.flaticon.com/128/3281/3281289.png",   "📈 Trending"),
+    ("reputation",  "https://cdn-icons-png.flaticon.com/128/2910/2910791.png",   "🌐 Reputation"),
+    ("api",         "https://cdn-icons-png.flaticon.com/128/8297/8297170.png",   "⚡ API"),
+    ("news",        "https://cdn-icons-png.flaticon.com/128/11437/11437791.png", "📰 News"),
+    ("history",     "https://cdn-icons-png.flaticon.com/128/8375/8375772.png",   "🕓 History"),
+    ("about",       "https://cdn-icons-png.flaticon.com/128/17450/17450816.png", "ℹ️ About"),
 ]
 
 st.markdown("<div class='nc-tabs'>", unsafe_allow_html=True)
@@ -177,6 +178,8 @@ elif page == "trending":
     trending.render()
 elif page == "reputation":
     reputation.render()
+elif page == "api":
+    api_playground.render()
 elif page == "news":
     news.render()
 elif page == "history":
