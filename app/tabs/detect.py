@@ -3,6 +3,7 @@ import plotly.graph_objects as go
 from ml.predict import predict
 from ml.metadata_encoder import validate_metadata_inputs
 from ml.explainer import get_shap_explanation
+from ml.translator import detect_language, translate_to_english, get_language_flag
 from db.queries import insert_detection
 from app.components.verdict_card import generate_verdict_card
 
@@ -113,6 +114,19 @@ def render():
         if inputs.get("title"):
             st.markdown(f"<h2 style='font-size:20px;font-weight:800;color:{text};margin:0 0 16px 0;'>{inputs['title']}</h2>",
                         unsafe_allow_html=True)
+
+        # Language badge
+        if inputs.get("lang_code", "en") != "en":
+            flag = get_language_flag(inputs["lang_code"])
+            st.markdown(f"""
+            <div style='display:inline-flex;align-items:center;gap:8px;background:#1e3a5f;
+                border:1px solid #3b82f6;border-radius:8px;padding:6px 14px;margin-bottom:16px;'>
+                <span style='font-size:16px;'>{flag}</span>
+                <span style='font-size:12px;color:#93c5fd;font-weight:600;'>
+                    Detected: {inputs['lang_name']} · Auto-translated to English for analysis
+                </span>
+            </div>
+            """, unsafe_allow_html=True)
 
         st.markdown(f"""
         <div style='background:{v_bg};border:1px solid {v_color}30;border-left:5px solid {v_color};
@@ -442,7 +456,13 @@ def render():
 
         with st.spinner("Analysing article..."):
             try:
-                result = predict(text=article_text, trust_score=trust_score,
+                # Detect language and translate if needed
+                lang_code, lang_name = detect_language(article_text)
+                text_for_model, was_translated = translate_to_english(article_text, lang_code)
+                if was_translated:
+                    st.info(f"{get_language_flag(lang_code)} Detected {lang_name} — translated to English for analysis.")
+
+                result = predict(text=text_for_model, trust_score=trust_score,
                                  follower_count=int(follower_count), account_age=int(account_age))
             except RuntimeError as e:
                 st.error(str(e)); return
@@ -451,13 +471,17 @@ def render():
 
         st.session_state["detect_result"] = result
         st.session_state["detect_inputs"] = {
-            "article_text": article_text,
-            "trust_score":  trust_score,
-            "follower_count": int(follower_count),
-            "account_age":  int(account_age),
-            "source_url":   source_url,
-            "title":        scraped_meta.get("title", ""),
-            "top_image":    scraped_meta.get("top_image", ""),
+            "article_text":    article_text,
+            "text_for_model":  text_for_model,
+            "lang_code":       lang_code,
+            "lang_name":       lang_name,
+            "was_translated":  was_translated,
+            "trust_score":     trust_score,
+            "follower_count":  int(follower_count),
+            "account_age":     int(account_age),
+            "source_url":      source_url,
+            "title":           scraped_meta.get("title", ""),
+            "top_image":       scraped_meta.get("top_image", ""),
         }
 
         try:

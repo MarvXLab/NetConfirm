@@ -3,6 +3,7 @@ import pandas as pd
 import time
 from ml.predict import predict
 from ml.metadata_encoder import validate_metadata_inputs
+from ml.translator import detect_language, translate_to_english, get_language_flag
 from db.queries import insert_detection
 
 card   = "#1e293b"
@@ -110,8 +111,12 @@ def render():
                 continue
 
             try:
+                lang_code, lang_name = detect_language(scraped["text"])
+                text_for_model, _ = translate_to_english(scraped["text"], lang_code)
+                lang_badge = f"{get_language_flag(lang_code)} {lang_name}" if lang_code != "en" else "🇬🇧 English"
+
                 result = predict(
-                    text=scraped["text"],
+                    text=text_for_model,
                     trust_score=trust_score,
                     follower_count=int(follower_count),
                     account_age=int(account_age),
@@ -123,6 +128,7 @@ def render():
                     "confidence": f"{result['confidence']*100:.1f}%",
                     "fake_prob":  f"{result['fake_prob']*100:.1f}%",
                     "real_prob":  f"{result['real_prob']*100:.1f}%",
+                    "language":   lang_badge,
                     "error":      "",
                 })
                 try:
@@ -139,7 +145,7 @@ def render():
                 results.append({
                     "url": url, "title": scraped["title"][:80], "verdict": "ERROR",
                     "confidence": "—", "fake_prob": "—", "real_prob": "—",
-                    "error": str(e),
+                    "language": "", "error": str(e),
                 })
 
             time.sleep(0.3)  # polite delay between requests
@@ -208,6 +214,7 @@ def render():
                             white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'>{r['title']}</p>
                         <p style='font-size:11px;color:{sub};margin:0;
                             white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'>{r['url']}</p>
+                        {f"<p style='font-size:11px;color:#93c5fd;margin:3px 0 0 0;'>{r.get('language','')}</p>" if r.get('language') else ''}
                         {err_html}
                     </div>
                     <div style='text-align:right;flex-shrink:0;'>
@@ -228,6 +235,7 @@ def render():
             "Confidence": r["confidence"],
             "Fake Prob":  r["fake_prob"],
             "Real Prob":  r["real_prob"],
+            "Language":   r.get("language", ""),
             "Error":      r["error"],
         } for r in results])
 
