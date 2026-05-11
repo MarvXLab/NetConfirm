@@ -172,6 +172,131 @@ def get_confidence_distribution():
         conn.close()
 
 
+# ── Domain Reputation ──────────────────────────────────────
+
+def search_domains(query: str = "", limit: int = 50):
+    """Search domain reputation registry."""
+    sql = """
+        SELECT id, domain, trust_score, category, country,
+               description, fake_count, real_count, total_scans,
+               flagged, flagged_reason, created_at
+        FROM domain_reputation
+        WHERE (%s = '' OR domain ILIKE %s OR category ILIKE %s)
+        ORDER BY total_scans DESC, trust_score DESC
+        LIMIT %s
+    """
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            like = f"%{query}%"
+            cur.execute(sql, (query, like, like, limit))
+            return cur.fetchall()
+    finally:
+        conn.close()
+
+
+def get_domain(domain: str):
+    """Get a single domain record."""
+    sql = "SELECT * FROM domain_reputation WHERE domain = %s"
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql, (domain.lower().strip(),))
+            return cur.fetchone()
+    finally:
+        conn.close()
+
+
+def upsert_domain(domain: str, trust_score: float, category: str,
+                  country: str, description: str):
+    """Insert or update a domain entry."""
+    sql = """
+        INSERT INTO domain_reputation
+            (domain, trust_score, category, country, description)
+        VALUES (%s, %s, %s, %s, %s)
+        ON CONFLICT (domain) DO UPDATE SET
+            trust_score  = EXCLUDED.trust_score,
+            category     = EXCLUDED.category,
+            country      = EXCLUDED.country,
+            description  = EXCLUDED.description,
+            updated_at   = NOW()
+    """
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql, (domain.lower().strip(), trust_score,
+                              category, country, description))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def flag_domain(domain: str, reason: str):
+    """Flag a domain as suspicious."""
+    sql = """
+        UPDATE domain_reputation
+        SET flagged = TRUE, flagged_reason = %s, updated_at = NOW()
+        WHERE domain = %s
+    """
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql, (reason, domain.lower().strip()))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def sync_domain_stats():
+    """
+    Auto-sync fake/real counts from detections table into domain_reputation.
+    Called when the reputation tab loads.
+    """
+    sql = """
+        INSERT INTO domain_reputation (domain, fake_count, real_count, total_scans)
+        SELECT
+            REGEXP_REPLACE(source_url, '^https?://([^/]+).*', '\\1') as domain,
+            SUM(CASE WHEN prediction = 'FAKE' THEN 1 ELSE 0 END),
+            SUM(CASE WHEN prediction = 'REAL' THEN 1 ELSE 0 END),
+            COUNT(*)
+        FROM detections
+        WHERE source_url IS NOT NULL AND source_url != ''
+        GROUP BY domain
+        ON CONFLICT (domain) DO UPDATE SET
+            fake_count  = EXCLUDED.fake_count,
+            real_count  = EXCLUDED.real_count,
+            total_scans = EXCLUDED.total_scans,
+            updated_at  = NOW()
+    """
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql)
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_reputation_stats():
+    """Summary stats for the reputation registry."""
+    sql = """
+        SELECT
+            COUNT(*)                                          as total_domains,
+            SUM(CASE WHEN flagged THEN 1 ELSE 0 END)         as flagged_count,
+            SUM(CASE WHEN trust_score >= 0.7 THEN 1 ELSE 0 END) as trusted_count,
+            SUM(CASE WHEN trust_score < 0.4 THEN 1 ELSE 0 END)  as untrusted_count,
+            ROUND(AVG(trust_score)::numeric, 3)              as avg_trust
+        FROM domain_reputation
+    """
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql)
+            return cur.fetchone()
+    finally:
+        conn.close()
+
+
 def log_model_run(model_name, accuracy, f1_score, precision, recall, notes=""):
     """Log a training run for model versioning."""
     sql = """

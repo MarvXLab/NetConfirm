@@ -28,3 +28,24 @@ CREATE TABLE IF NOT EXISTS model_runs (
 
 CREATE INDEX IF NOT EXISTS idx_detections_created_at ON detections(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_detections_prediction ON detections(prediction);
+
+CREATE TABLE IF NOT EXISTS domain_reputation (
+    id              SERIAL PRIMARY KEY,
+    domain          VARCHAR(255) NOT NULL UNIQUE,
+    trust_score     FLOAT NOT NULL DEFAULT 0.5,
+    category        VARCHAR(100) DEFAULT 'Unknown',
+    country         VARCHAR(100) DEFAULT 'Unknown',
+    description     TEXT DEFAULT '',
+    fake_count      INTEGER NOT NULL DEFAULT 0,
+    real_count      INTEGER NOT NULL DEFAULT 0,
+    total_scans     INTEGER NOT NULL DEFAULT 0,
+    flagged         BOOLEAN NOT NULL DEFAULT FALSE,
+    flagged_reason  TEXT DEFAULT '',
+    submitted_by    VARCHAR(100) DEFAULT 'community',
+    created_at      TIMESTAMP DEFAULT NOW(),
+    updated_at      TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_domain_reputation_domain ON domain_reputation(domain);
+CREATE INDEX IF NOT EXISTS idx_domain_reputation_trust  ON domain_reputation(trust_score DESC);
+CREATE INDEX IF NOT EXISTS idx_domain_reputation_flagged ON domain_reputation(flagged);
