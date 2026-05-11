@@ -1,8 +1,13 @@
 import sys
 import os
+import warnings
+warnings.filterwarnings("ignore")
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import streamlit as st
+# Suppress secrets file warning before anything else
+os.environ.setdefault("STREAMLIT_SECRETS_FILE", "")
+
 from db.connection import run_schema
 from app.tabs import detect, history, about, news
 
@@ -136,81 +141,43 @@ div[data-testid="stHeader"] {{ display:none; }}
 
 # ── Navbar ─────────────────────────────────────────────────
 nav_items = [
-    ("detect",  "https://cdn-icons-png.flaticon.com/128/681/681508.png",   "Detect"),
+    ("detect",  "https://cdn-icons-png.flaticon.com/128/681/681508.png",    "Detect"),
     ("news",    "https://cdn-icons-png.flaticon.com/128/11437/11437791.png", "News"),
-    ("history", "https://cdn-icons-png.flaticon.com/128/8375/8375772.png",  "History"),
-    ("about",   "https://cdn-icons-png.flaticon.com/128/17450/17450816.png","About"),
+    ("history", "https://cdn-icons-png.flaticon.com/128/8375/8375772.png",   "History"),
+    ("about",   "https://cdn-icons-png.flaticon.com/128/17450/17450816.png", "About"),
 ]
 
-links_html = ""
-for p, icon, label in nav_items:
-    active_cls = "active" if page == p else ""
-    links_html += f"""
-    <button class='nc-nav-link {active_cls}' onclick="window.location.href='?page={p}'">
-        <img src='{icon}'>{label}
-    </button>"""
-
-mobile_links_html = ""
-for p, icon, label in nav_items:
-    active_cls = "active" if page == p else ""
-    mobile_links_html += f"""
-    <button class='nc-mobile-link {active_cls}' onclick="window.location.href='?page={p}'">
-        <img src='{icon}'>{label}
-    </button>"""
-
-theme_icon_url = "https://cdn-icons-png.flaticon.com/128/66275/66275.png" if dark else "https://cdn-icons-png.flaticon.com/128/39857/39857.png"
-
+# Brand + theme toggle HTML (purely visual)
 st.markdown(f"""
 <nav class='nc-nav'>
     <div class='nc-brand'>
-        <div class='nc-brand-icon'><img src='https://cdn-icons-png.flaticon.com/128/681/681508.png' style='width:22px;height:22px;object-fit:contain;filter:brightness(0) invert(1);'></div>
+        <div class='nc-brand-icon'>
+            <img src='https://cdn-icons-png.flaticon.com/128/681/681508.png'
+                style='width:22px;height:22px;object-fit:contain;filter:brightness(0) invert(1);'>
+        </div>
         <div>
             <div class='nc-brand-name'>NetConfirm</div>
             <div class='nc-brand-sub'>AI Fake News Detector</div>
         </div>
     </div>
-    <div class='nc-nav-links'>{links_html}</div>
-    <div class='nc-nav-right'>
-        <button class='nc-theme-btn' id='theme-btn'><img src='{theme_icon_url}' style='width:18px;height:18px;object-fit:contain;filter:{"brightness(0) invert(1)" if dark else F};'></button>
-        <button class='nc-hamburger' id='hamburger-btn'>
-            <span></span><span></span><span></span>
-        </button>
-    </div>
 </nav>
-<div class='nc-mobile-menu' id='mobile-menu'>
-    {mobile_links_html}
-    <div style='margin-top:auto;padding-top:16px;border-top:1px solid {border};'>
-        <button class='nc-mobile-link' id='mobile-theme-btn'><img src='{theme_icon_url}' style='width:20px;height:20px;object-fit:contain;filter:{F};margin-right:8px;'> {'Light Mode' if dark else 'Dark Mode'}</button>
-    </div>
-</div>
-<script>
-const hamburger = document.getElementById('hamburger-btn');
-const mobileMenu = document.getElementById('mobile-menu');
-const themeBtn = document.getElementById('theme-btn');
-const mobileThemeBtn = document.getElementById('mobile-theme-btn');
-if(hamburger) hamburger.addEventListener('click', () => {{
-    mobileMenu.style.display = mobileMenu.style.display === 'flex' ? 'none' : 'flex';
-}});
-if(themeBtn) themeBtn.addEventListener('click', () => {{
-    window.location.href = '?page={page}&theme=toggle';
-}});
-if(mobileThemeBtn) mobileThemeBtn.addEventListener('click', () => {{
-    window.location.href = '?page={page}&theme=toggle';
-}});
-</script>
 """, unsafe_allow_html=True)
 
-# Handle URL params for navigation and theme
-params = st.query_params
-if "page" in params:
-    new_page = params["page"]
-    if new_page in ["detect", "news", "history", "about"]:
-        st.session_state["page"] = new_page
-        page = new_page
-if "theme" in params and params["theme"] == "toggle":
-    st.session_state["dark_mode"] = not dark
-    st.query_params.clear()
-    st.rerun()
+# Real Streamlit nav buttons (these actually work)
+nav_cols = st.columns([1, 1, 1, 1, 3, 1])
+for i, (p, icon, label) in enumerate(nav_items):
+    with nav_cols[i]:
+        is_active = page == p
+        btn_type = "primary" if is_active else "secondary"
+        if st.button(label, key=f"nav_{p}", type=btn_type, use_container_width=True):
+            st.session_state["page"] = p
+            st.rerun()
+
+with nav_cols[5]:
+    theme_label = "☀️" if dark else "🌙"
+    if st.button(theme_label, key="theme_toggle", type="secondary", use_container_width=True):
+        st.session_state["dark_mode"] = not dark
+        st.rerun()
 
 # ── Content ────────────────────────────────────────────────
 st.markdown("<div class='nc-content'>", unsafe_allow_html=True)
