@@ -4,6 +4,7 @@ from ml.predict import predict
 from ml.metadata_encoder import validate_metadata_inputs
 from ml.explainer import get_shap_explanation
 from db.queries import insert_detection
+from app.components.verdict_card import generate_verdict_card
 
 F = "invert(14%) sepia(20%) saturate(800%) hue-rotate(190deg) brightness(80%) contrast(95%)"
 
@@ -126,6 +127,31 @@ def render():
         </div>
         """, unsafe_allow_html=True)
 
+        # ── Share verdict card ──────────────────────────────
+        try:
+            card_bytes = generate_verdict_card(
+                verdict=result["prediction"],
+                confidence=result["confidence"],
+                real_prob=result["real_prob"],
+                fake_prob=result["fake_prob"],
+                sentiment=result["sentiment"],
+                title=inputs.get("title", ""),
+                snippet=inputs["article_text"][:120],
+            )
+            col_dl, _ = st.columns([2, 5])
+            with col_dl:
+                st.download_button(
+                    label="📤  Download Verdict Card",
+                    data=card_bytes,
+                    file_name=f"netconfirm_{result['prediction'].lower()}.png",
+                    mime="image/png",
+                    type="secondary",
+                    use_container_width=True,
+                )
+        except Exception:
+            pass
+
+        st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
         col_gauge, col_signals = st.columns([1, 1])
         with col_gauge:
             st.markdown(f"<div style='background:{card};border:1px solid {border};border-radius:12px;padding:16px;'>",
