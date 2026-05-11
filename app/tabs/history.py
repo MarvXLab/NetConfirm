@@ -6,7 +6,7 @@ from db.queries import get_recent_detections, get_stats
 def render():
     st.markdown("### Detection History")
     st.markdown(
-        "<p style='color:#71717a;font-size:14px;margin-top:-12px'>"
+        "<p style='color:#94a3b8;font-size:14px;margin-top:-12px'>"
         "All previous analyses stored for audit and review."
         "</p>",
         unsafe_allow_html=True,
@@ -34,7 +34,7 @@ def render():
 
     if not rows:
         st.markdown(
-            "<div style='text-align:center;padding:48px;color:#71717a'>"
+            "<div style='text-align:center;padding:48px;color:#94a3b8'>"
             "<p style='font-size:32px'>📋</p>"
             "<p style='font-size:15px'>No detections yet.</p>"
             "<p style='font-size:13px'>Run your first analysis in the Detect tab.</p>"
@@ -70,6 +70,6 @@ def render():
 
     st.dataframe(styled, use_container_width=True, hide_index=True)
     st.markdown(
-        f"<p style='font-size:12px;color:#a1a1aa'>Showing last {len(df)} detections</p>",
+        f"<p style='font-size:12px;color:#64748b'>Showing last {len(df)} detections</p>",
         unsafe_allow_html=True,
     )

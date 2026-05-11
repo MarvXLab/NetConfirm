@@ -34,25 +34,25 @@ def render_speedometer(real_prob: float) -> go.Figure:
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=score,
-        number={"suffix": "%", "font": {"size": 48, "color": "#0f172a", "family": "Inter, sans-serif"}},
-        title={"text": f"Authenticity Score<br><span style='font-size:14px;color:#64748b;font-weight:500'>{label}</span>",
-               "font": {"size": 16, "color": "#0f172a", "family": "Inter, sans-serif"}},
+        number={"suffix": "%", "font": {"size": 48, "color": "#f1f5f9", "family": "Inter, sans-serif"}},
+        title={"text": f"Authenticity Score<br><span style='font-size:14px;color:#94a3b8;font-weight:500'>{label}</span>",
+               "font": {"size": 16, "color": "#f1f5f9", "family": "Inter, sans-serif"}},
         gauge={
-            "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "#e2e8f0",
+            "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "#334155",
                      "tickfont": {"size": 11, "color": "#94a3b8"}},
             "bar": {"color": color, "thickness": 0.25},
-            "bgcolor": "white", "borderwidth": 0,
+            "bgcolor": "#1e293b", "borderwidth": 0,
             "steps": [
-                {"range": [0, 25],   "color": "#fef2f2"},
-                {"range": [25, 50],  "color": "#fff7ed"},
-                {"range": [50, 75],  "color": "#fefce8"},
-                {"range": [75, 100], "color": "#f0fdf4"},
+                {"range": [0, 25],   "color": "#2d1515"},
+                {"range": [25, 50],  "color": "#2d1f0f"},
+                {"range": [50, 75],  "color": "#2d2a0f"},
+                {"range": [75, 100], "color": "#0f2d15"},
             ],
             "threshold": {"line": {"color": color, "width": 3}, "thickness": 0.75, "value": score},
         },
     ))
     fig.update_layout(height=300, margin={"t": 80, "b": 0, "l": 30, "r": 30},
-                      paper_bgcolor="white", font={"family": "Inter, sans-serif"})
+                      paper_bgcolor="#1e293b", font={"family": "Inter, sans-serif"})
     return fig
 
 
@@ -128,7 +128,7 @@ def render():
 
         col_gauge, col_signals = st.columns([1, 1])
         with col_gauge:
-            st.markdown(f"<div style='background:white;border:1px solid {border};border-radius:12px;padding:16px;'>",
+            st.markdown(f"<div style='background:{card};border:1px solid {border};border-radius:12px;padding:16px;'>",
                         unsafe_allow_html=True)
             st.plotly_chart(render_speedometer(result["real_prob"]), use_container_width=True)
             st.markdown("</div>", unsafe_allow_html=True)

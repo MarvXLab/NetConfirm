@@ -4,7 +4,7 @@ import streamlit as st
 def render():
     st.markdown("### About NetConfirm")
     st.markdown(
-        "<p style='color:#71717a;font-size:14px;margin-top:-12px'>"
+        "<p style='color:#94a3b8;font-size:14px;margin-top:-12px'>"
         "A hybrid fake news detection system combining deep language understanding with social context analysis."
         "</p>",
         unsafe_allow_html=True,
@@ -69,7 +69,7 @@ def render():
     # Disclaimer
     st.markdown("#### Important Disclaimer")
     st.markdown(
-        "<p style='font-size:13px;color:#71717a'>"
+        "<p style='font-size:13px;color:#94a3b8'>"
         "NetConfirm is a probabilistic analysis tool, not a definitive fact-checker. "
         "Results should be treated as one signal among many. Always verify important "
         "claims with primary sources, credible journalists, and established fact-checking "
@@ -82,7 +82,7 @@ def render():
 
     st.markdown("---")
     st.markdown(
-        "<p style='font-size:12px;color:#a1a1aa'>"
+        "<p style='font-size:12px;color:#64748b'>"
         "Built by Taiwo Emmanuel · Westland University · Computer Science FYP · 2025"
         "</p>",
         unsafe_allow_html=True,

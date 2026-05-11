@@ -4,7 +4,6 @@ import warnings
 warnings.filterwarnings("ignore")
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Create a dummy secrets file so Streamlit stops warning about it
 for _p in ["/opt/render/.streamlit", "/opt/render/project/src/.streamlit"]:
     try:
         os.makedirs(_p, exist_ok=True)
@@ -25,20 +24,16 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-if "dark_mode" not in st.session_state:
-    st.session_state["dark_mode"] = False
 if "page" not in st.session_state:
     st.session_state["page"] = "detect"
 
-dark   = st.session_state["dark_mode"]
 page   = st.session_state["page"]
-bg     = "#0f172a" if dark else "#ffffff"
-card   = "#1e293b" if dark else "#f8fafc"
-text   = "#f1f5f9" if dark else "#0f172a"
-sub    = "#94a3b8" if dark else "#64748b"
-border = "#334155" if dark else "#e2e8f0"
+bg     = "#0f172a"
+card   = "#1e293b"
+text   = "#f1f5f9"
+sub    = "#94a3b8"
+border = "#334155"
 accent = "#1a1a2e"
-F      = "invert(14%) sepia(20%) saturate(800%) hue-rotate(190deg) brightness(80%) contrast(95%)"
 FW     = "brightness(0) invert(1)"
 
 st.markdown(f"""
@@ -70,6 +65,9 @@ div[data-testid="stHeader"] {{ display:none; }}
 [data-testid="metric-container"] {{
     background:{card}; border-radius:10px; padding:16px 20px; border:1px solid {border};
 }}
+[data-testid="metric-container"] label, [data-testid="metric-container"] div {{
+    color:{text} !important;
+}}
 .stSlider [data-baseweb="slider"] {{ padding-top:6px; }}
 .stNumberInput input {{ background:{card} !important; color:{text} !important; }}
 ::-webkit-scrollbar {{ width:5px; height:5px; }}
@@ -79,8 +77,8 @@ div[data-testid="stHeader"] {{ display:none; }}
 .nc-nav {{
     background:{card}; border-bottom:1px solid {border};
     padding:0 16px; display:flex; align-items:center;
-    justify-content:space-between; height:60px; position:sticky; top:0; z-index:100;
-    box-shadow:0 1px 8px rgba(0,0,0,{'0.3' if dark else '0.06'});
+    height:60px; position:sticky; top:0; z-index:100;
+    box-shadow:0 1px 8px rgba(0,0,0,0.3);
 }}
 .nc-brand {{ display:flex; align-items:center; gap:10px; }}
 .nc-brand-icon {{
@@ -93,49 +91,42 @@ div[data-testid="stHeader"] {{ display:none; }}
 /* Tab nav bar */
 .nc-tabs {{
     background:{card}; border-bottom:1px solid {border};
-    display:flex; align-items:center; gap:2px; padding:0 16px;
+    display:flex; align-items:center; gap:2px; padding:0 8px;
     overflow-x:auto; scrollbar-width:none;
 }}
 .nc-tabs::-webkit-scrollbar {{ display:none; }}
-.nc-tab {{
-    display:flex; align-items:center; gap:6px; padding:12px 16px;
-    font-size:13px; font-weight:500; color:{sub}; cursor:pointer;
-    border:none; background:transparent; white-space:nowrap;
-    border-bottom:2px solid transparent; transition:all 0.15s;
-    text-decoration:none;
+
+/* Override Streamlit tab-button styling */
+.nc-tabs .stButton > button {{
+    display:flex !important; align-items:center !important; gap:6px !important;
+    padding:12px 16px !important; font-size:13px !important; font-weight:500 !important;
+    color:{sub} !important; cursor:pointer !important; border:none !important;
+    background:transparent !important; white-space:nowrap !important;
+    border-bottom:2px solid transparent !important; border-radius:0 !important;
+    transition:all 0.15s !important; box-shadow:none !important;
 }}
-.nc-tab:hover {{ color:{text}; }}
-.nc-tab.active {{ color:{text}; border-bottom:2px solid {accent}; font-weight:600; }}
-.nc-tab img {{ width:15px; height:15px; object-fit:contain; }}
-.nc-tab.active img {{ filter:{FW}; opacity:0.8; }}
-.nc-tab:not(.active) img {{ filter:{F}; }}
+.nc-tabs .stButton > button:hover {{ color:{text} !important; }}
 
 .nc-content {{ padding:24px; max-width:1200px; margin:0 auto; }}
 @media (max-width:640px) {{ .nc-content {{ padding:12px; }} .nc-brand-sub {{ display:none; }} }}
+
+/* Global text color overrides for dark mode */
+p, span, label, div {{ color:{text}; }}
+h1, h2, h3, h4, h5, h6 {{ color:{text} !important; }}
+.stMarkdown p {{ color:{text}; }}
+table {{ color:{text}; }}
+thead tr th {{ color:{text} !important; background:{card} !important; }}
+tbody tr td {{ color:{text} !important; background:{bg} !important; }}
 </style>
 """, unsafe_allow_html=True)
 
-# ── Navbar brand + theme toggle ─────────────────────────────
-nav_items = [
-    ("detect",  "https://cdn-icons-png.flaticon.com/128/681/681508.png",    "Detect"),
-    ("news",    "https://cdn-icons-png.flaticon.com/128/11437/11437791.png", "News"),
-    ("history", "https://cdn-icons-png.flaticon.com/128/8375/8375772.png",   "History"),
-    ("about",   "https://cdn-icons-png.flaticon.com/128/17450/17450816.png", "About"),
-]
-
-tabs_html = ""
-for p, icon, label in nav_items:
-    active_cls = "active" if page == p else ""
-    tabs_html += f"<a class='nc-tab {active_cls}' href='?page={p}'><img src='{icon}'>{label}</a>"
-
-theme_emoji = "☀️" if dark else "🌙"
-
+# ── Navbar brand ────────────────────────────────────────────
 st.markdown(f"""
 <nav class='nc-nav'>
     <div class='nc-brand'>
         <div class='nc-brand-icon'>
             <img src='https://cdn-icons-png.flaticon.com/128/681/681508.png'
-                style='width:20px;height:20px;object-fit:contain;filter:brightness(0) invert(1);'>
+                style='width:20px;height:20px;object-fit:contain;filter:{FW};'>
         </div>
         <div>
             <div class='nc-brand-name'>NetConfirm</div>
@@ -143,25 +134,27 @@ st.markdown(f"""
         </div>
     </div>
 </nav>
-<div class='nc-tabs'>{tabs_html}</div>
 """, unsafe_allow_html=True)
 
-# Handle URL page param (works with the <a href> links above)
-params = st.query_params
-if "page" in params and params["page"] in ["detect", "news", "history", "about"]:
-    if st.session_state["page"] != params["page"]:
-        st.session_state["page"] = params["page"]
-        st.rerun()
-    page = params["page"]
+# ── Tab nav using Streamlit buttons (no new-tab issue) ──────
+nav_items = [
+    ("detect",  "https://cdn-icons-png.flaticon.com/128/681/681508.png",    "🔍 Detect"),
+    ("news",    "https://cdn-icons-png.flaticon.com/128/11437/11437791.png", "📰 News"),
+    ("history", "https://cdn-icons-png.flaticon.com/128/8375/8375772.png",   "🕓 History"),
+    ("about",   "https://cdn-icons-png.flaticon.com/128/17450/17450816.png", "ℹ️ About"),
+]
 
-# Theme toggle as a real button (top right via columns)
-_, theme_col = st.columns([10, 1])
-with theme_col:
-    if st.button(theme_emoji, key="theme_toggle", type="secondary", use_container_width=True):
-        st.session_state["dark_mode"] = not dark
-        st.rerun()
+st.markdown("<div class='nc-tabs'>", unsafe_allow_html=True)
+tab_cols = st.columns(len(nav_items))
+for i, (p, icon, label) in enumerate(nav_items):
+    with tab_cols[i]:
+        btn_type = "primary" if page == p else "secondary"
+        if st.button(label, key=f"nav_{p}", type=btn_type, use_container_width=True):
+            st.session_state["page"] = p
+            st.rerun()
+st.markdown("</div>", unsafe_allow_html=True)
 
-# ── Content ────────────────────────────────────────────────
+# ── Content ─────────────────────────────────────────────────
 st.markdown("<div class='nc-content'>", unsafe_allow_html=True)
 
 @st.cache_resource
