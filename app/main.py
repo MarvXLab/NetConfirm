@@ -15,7 +15,7 @@ for _p in ["/opt/render/.streamlit", "/opt/render/project/src/.streamlit"]:
 
 import streamlit as st
 from db.connection import run_schema
-from app.tabs import detect, history, about, news
+from app.tabs import detect, history, about, news, batch
 
 st.set_page_config(
     page_title="NetConfirm — Fake News Detector",
@@ -139,6 +139,7 @@ st.markdown(f"""
 # ── Tab nav using Streamlit buttons (no new-tab issue) ──────
 nav_items = [
     ("detect",  "https://cdn-icons-png.flaticon.com/128/681/681508.png",    "🔍 Detect"),
+    ("batch",   "https://cdn-icons-png.flaticon.com/128/9496/9496543.png",   "📋 Batch Scan"),
     ("news",    "https://cdn-icons-png.flaticon.com/128/11437/11437791.png", "📰 News"),
     ("history", "https://cdn-icons-png.flaticon.com/128/8375/8375772.png",   "🕓 History"),
     ("about",   "https://cdn-icons-png.flaticon.com/128/17450/17450816.png", "ℹ️ About"),
@@ -168,6 +169,8 @@ init_db()
 
 if page == "detect":
     detect.render()
+elif page == "batch":
+    batch.render()
 elif page == "news":
     news.render()
 elif page == "history":
