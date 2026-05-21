@@ -7,7 +7,7 @@ from ml.translator import detect_language, translate_to_english, get_language_fl
 from db.queries import insert_detection
 from app.components.verdict_card import generate_verdict_card
 
-F = "invert(14%) sepia(20%) saturate(800%) hue-rotate(190deg) brightness(80%) contrast(95%)"
+F = "brightness(0) invert(1)"
 
 
 def scrape_url(url: str):
@@ -89,7 +89,7 @@ def render():
         confidence = round(result["confidence"] * 100, 1)
         is_fake    = verdict == "FAKE"
         v_color    = "#dc2626" if is_fake else "#16a34a"
-        v_bg       = "#fef2f2" if is_fake else "#f0fdf4"
+        v_bg = "#2d1515" if is_fake else "#0f2d15"
         v_icon     = "⚠️" if is_fake else "✅"
         v_msg      = "Strong indicators of misinformation detected." if is_fake else "This article appears authentic and credible."
 
@@ -333,6 +333,14 @@ def render():
         return
 
     # ── INPUT VIEW ────────────────────────────────────────
+    # On mobile show full width form, hide info panel
+    st.markdown("""
+    <style>
+    .nc-info-panel { display: block; }
+    @media (max-width: 768px) { .nc-info-panel { display: none; } }
+    </style>
+    """, unsafe_allow_html=True)
+
     col_form, col_info = st.columns([3, 1])
 
     with col_form:
@@ -404,7 +412,8 @@ def render():
 
     with col_info:
         st.markdown(f"""
-        <div style='background:{muted};border:1px solid {border};border-radius:12px;padding:20px;'>
+        <div class='nc-info-panel' style='background:{muted};border:1px solid {border};
+            border-radius:12px;padding:20px;'>
             <p style='font-size:11px;font-weight:700;color:{text};margin:0 0 14px 0;text-transform:uppercase;letter-spacing:0.5px;'>How It Works</p>
             <div style='display:flex;flex-direction:column;gap:14px;'>
                 <div style='display:flex;gap:12px;align-items:flex-start;'>
