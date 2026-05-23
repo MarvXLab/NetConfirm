@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NetConfirm Extension — Privacy Policy</title>
+  <style>
+    body { max-width: 720px; margin: 40px auto; padding: 0 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1e293b; line-height: 1.7; }
+    h1 { font-size: 24px; margin-bottom: 6px; }
+    h2 { font-size: 16px; margin: 28px 0 8px 0; }
+    p, li { font-size: 14px; color: #334155; }
+    ul { padding-left: 20px; }
+    .updated { font-size: 12px; color: #94a3b8; margin-bottom: 32px; }
+  </style>
+</head>
+<body>
+  <h1>NetConfirm Extension — Privacy Policy</h1>
+  <p class="updated">Last updated: June 2025</p>
+
+  <h2>What data we collect</h2>
+  <p>The NetConfirm browser extension does <strong>not</strong> collect, store, or transmit any personally identifiable information. Specifically:</p>
+  <ul>
+    <li>We do not collect your name, email, or any account information</li>
+    <li>We do not track your browsing history</li>
+    <li>We do not store article text on any server beyond what is needed to return the analysis result</li>
+  </ul>
+
+  <h2>What the extension sends</h2>
+  <p>When you click "Analyse This Page", the extension extracts the visible article text from the current page and sends it to the NetConfirm API (hosted on Render) solely to perform fake news detection. The text is processed and the result is returned immediately. No article text is stored persistently on our servers.</p>
+
+  <h2>API Key storage</h2>
+  <p>Your API key is stored locally in your browser using <code>chrome.storage.sync</code>. It is never sent to any third party and is only used to authenticate requests to the NetConfirm API.</p>
+
+  <h2>Permissions used</h2>
+  <ul>
+    <li><strong>activeTab</strong> — to read the URL and title of the current tab</li>
+    <li><strong>scripting</strong> — to extract article text from the current page</li>
+    <li><strong>storage</strong> — to save your API key and settings locally in your browser</li>
+    <li><strong>host_permissions (&lt;all_urls&gt;)</strong> — required to extract article text from any news website you visit</li>
+  </ul>
+
+  <h2>Third-party services</h2>
+  <p>Article text is sent to the NetConfirm API hosted on <a href="https://render.com">Render</a>. Render's privacy policy applies to that infrastructure. No other third-party services receive your data.</p>
+
+  <h2>Contact</h2>
+  <p>For any questions about this privacy policy, open an issue at <a href="https://github.com/marvxlab/NetConfirm">github.com/marvxlab/NetConfirm</a>.</p>
+</body>
+</html>
