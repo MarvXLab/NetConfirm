@@ -21,6 +21,7 @@ SUBMIT_ICON   = "https://cdn-icons-png.flaticon.com/128/14964/14964596.png"
 FLAG_ICON     = "https://cdn-icons-png.flaticon.com/128/16973/16973545.png"
 DB_ICON       = "https://cdn-icons-png.flaticon.com/128/2232/2232186.png"
 
+CATEGORIES = ["Unknown", "News", "Politics", "Technology", "Entertainment",
               "Sports", "Science", "Health", "Business", "Satire", "Conspiracy"]
 
 
