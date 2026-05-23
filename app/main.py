@@ -50,19 +50,20 @@ nav_items = [
 current_label = next((f"{e} {l}" for p, e, l in nav_items if p == page), "🔍 Detect")
 
 # Build desktop tab links and mobile menu items
-desktop_tabs = ""
-mobile_items = ""
+desktop_tabs_parts = []
+mobile_items_parts = []
 for p, emoji, label in nav_items:
     active = "active" if p == page else ""
-    desktop_tabs += f"""
-        <a class="nc-tab {active}" href="?nav={p}" onclick="navTo('{p}');return false;">
-            {emoji} {label}
-        </a>"""
-    mobile_items += f"""
-        <a class="nc-mob-item {active}" href="?nav={p}" onclick="navTo('{p}');return false;">
-            <span class="nc-mob-emoji">{emoji}</span>
-            <span class="nc-mob-label">{label}</span>
-        </a>"""
+    desktop_tabs_parts.append(
+        f'<a class="nc-tab {active}" href="?nav={p}" data-nav="{p}">{emoji} {label}</a>'
+    )
+    mobile_items_parts.append(
+        f'<a class="nc-mob-item {active}" href="?nav={p}" data-nav="{p}">'
+        f'<span class="nc-mob-emoji">{emoji}</span>'
+        f'<span class="nc-mob-label">{label}</span></a>'
+    )
+desktop_tabs = "".join(desktop_tabs_parts)
+mobile_items = "".join(mobile_items_parts)
 
 st.markdown(f"""
 <style>
@@ -356,7 +357,7 @@ function toggleMenu() {{
     }} else {{
         overlay.classList.add('open');
         drawer.classList.add('open');
-        btn.textContent = '✕';
+        btn.textContent = '\u2715';
         _doc.body.style.overflow = 'hidden';
     }}
 }}
@@ -368,7 +369,7 @@ function closeMenu() {{
     if (!overlay || !drawer) return;
     overlay.classList.remove('open');
     drawer.classList.remove('open');
-    btn.textContent = '☰';
+    btn.textContent = '\u2630';
     _doc.body.style.overflow = '';
 }}
 
@@ -379,7 +380,6 @@ function navTo(page) {{
     window.parent.location.href = url.toString();
 }}
 
-// Wire up all interactive elements
 (function() {{
     function wire() {{
         var btn   = _doc.getElementById('hamBtn');
@@ -388,6 +388,12 @@ function navTo(page) {{
         if (btn)   btn.addEventListener('click', toggleMenu);
         if (close) close.addEventListener('click', closeMenu);
         if (ovl)   ovl.addEventListener('click', closeMenu);
+        _doc.querySelectorAll('[data-nav]').forEach(function(el) {{
+            el.addEventListener('click', function(e) {{
+                e.preventDefault();
+                navTo(el.getAttribute('data-nav'));
+            }});
+        }});
     }}
     if (_doc.readyState === 'loading') {{
         _doc.addEventListener('DOMContentLoaded', wire);
