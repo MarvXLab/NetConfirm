@@ -27,6 +27,11 @@ st.set_page_config(
 if "page" not in st.session_state:
     st.session_state["page"] = "detect"
 
+# Check query params early so page is correct before rendering nav
+_early_params = st.query_params
+if "news_cat" in _early_params and "nav" not in _early_params:
+    st.session_state["page"] = "news"
+
 page   = st.session_state["page"]
 bg     = "#0f172a"
 card   = "#1e293b"
@@ -256,6 +261,7 @@ tbody tr td {{ color: {text} !important; background: {bg} !important; }}
 
 # Handle URL nav param
 params = st.query_params
+
 if "nav" in params:
     nav_val = params["nav"]
     valid   = [p for p, _ in nav_items]
