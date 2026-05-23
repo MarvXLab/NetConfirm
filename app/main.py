@@ -160,19 +160,20 @@ section[data-testid="stSidebar"] {{ display: none; }}
 .nc-tab {{
     display: flex; align-items: center; gap: 6px;
     padding: 12px 14px;
-    font-size: 13px; font-weight: 500;
-    color: {sub};
+    font-size: 12px; font-weight: 400;
+    color: rgba(255,255,255,0.55);
     text-decoration: none;
     white-space: nowrap;
     border-bottom: 2px solid transparent;
     transition: color 0.15s, border-color 0.15s;
     cursor: pointer;
+    letter-spacing: 0.2px;
 }}
-.nc-tab:hover {{ color: {text}; }}
+.nc-tab:hover {{ color: rgba(255,255,255,0.85); }}
 .nc-tab.active {{
-    color: {text};
-    border-bottom: 2px solid {text};
-    font-weight: 700;
+    color: #ffffff;
+    border-bottom: 2px solid #ffffff;
+    font-weight: 600;
 }}
 
 

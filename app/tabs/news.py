@@ -189,16 +189,17 @@ def render():
     .nc-cat-tab {{
         display: flex; align-items: center; gap: 6px;
         padding: 7px 14px;
-        font-size: 13px; font-weight: 500;
-        color: {sub}; background: {card};
+        font-size: 12px; font-weight: 400;
+        color: rgba(255,255,255,0.55); background: {card};
         text-decoration: none; white-space: nowrap;
         border-radius: 20px; border: 1px solid {border};
         transition: all 0.15s; flex-shrink: 0;
+        letter-spacing: 0.2px;
     }}
-    .nc-cat-tab:hover {{ color: {text}; border-color: {text}; }}
+    .nc-cat-tab:hover {{ color: rgba(255,255,255,0.85); border-color: rgba(255,255,255,0.4); }}
     .nc-cat-active {{
-        color: {text}; font-weight: 700;
-        background: #1a1a2e; border-color: {text};
+        color: #ffffff; font-weight: 600;
+        background: #1a1a2e; border-color: rgba(255,255,255,0.7);
     }}
     </style>
     <div class="nc-cat-bar">{cat_tabs}</div>
