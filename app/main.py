@@ -36,34 +36,38 @@ border = "#334155"
 accent = "#1a1a2e"
 FW     = "brightness(0) invert(1)"
 
+NAV_ICONS = {
+    "detect":     "https://cdn-icons-png.flaticon.com/128/10496/10496548.png",
+    "batch":      "https://cdn-icons-png.flaticon.com/128/4240/4240759.png",
+    "trending":   "https://cdn-icons-png.flaticon.com/128/12513/12513740.png",
+    "reputation": "https://cdn-icons-png.flaticon.com/128/8915/8915911.png",
+    "api":        "https://cdn-icons-png.flaticon.com/128/8267/8267389.png",
+    "news":       "https://cdn-icons-png.flaticon.com/128/2963/2963907.png",
+    "history":    "https://cdn-icons-png.flaticon.com/128/6619/6619116.png",
+    "about":      "https://cdn-icons-png.flaticon.com/128/6811/6811518.png",
+}
+
 nav_items = [
-    ("detect",     "🔍", "Detect"),
-    ("batch",      "📋", "Batch Scan"),
-    ("trending",   "📈", "Trending"),
-    ("reputation", "🌐", "Reputation"),
-    ("api",        "⚡", "API"),
-    ("news",       "📰", "News"),
-    ("history",    "🕓", "History"),
-    ("about",      "ℹ️",  "About"),
+    ("detect",     "Detect"),
+    ("batch",      "Batch Scan"),
+    ("trending",   "Trending"),
+    ("reputation", "Reputation"),
+    ("api",        "API"),
+    ("news",       "News"),
+    ("history",    "History"),
+    ("about",      "About"),
 ]
 
-current_label = next((f"{e} {l}" for p, e, l in nav_items if p == page), "🔍 Detect")
-
-# Build desktop tab links and mobile menu items
-desktop_tabs_parts = []
-mobile_items_parts = []
-for p, emoji, label in nav_items:
+# Build tab links — image icons, no emoji, plain href (same-tab navigation)
+tab_links = ""
+for p, label in nav_items:
     active = "active" if p == page else ""
-    desktop_tabs_parts.append(
-        f'<a class="nc-tab {active}" href="?nav={p}" data-nav="{p}">{emoji} {label}</a>'
+    icon_url = NAV_ICONS[p]
+    tab_links += (
+        f'<a class="nc-tab {active}" href="?nav={p}" target="_self">'
+        f'<img src="{icon_url}" style="width:16px;height:16px;object-fit:contain;filter:brightness(0) invert(1);flex-shrink:0;">'
+        f'{label}</a>'
     )
-    mobile_items_parts.append(
-        f'<a class="nc-mob-item {active}" href="?nav={p}" data-nav="{p}">'
-        f'<span class="nc-mob-emoji">{emoji}</span>'
-        f'<span class="nc-mob-label">{label}</span></a>'
-    )
-desktop_tabs = "".join(desktop_tabs_parts)
-mobile_items = "".join(mobile_items_parts)
 
 st.markdown(f"""
 <style>
@@ -171,86 +175,7 @@ section[data-testid="stSidebar"] {{ display: none; }}
     font-weight: 700;
 }}
 
-/* ── Hamburger button (mobile only) ── */
-.nc-ham-btn {{
-    display: none;
-    background: none;
-    border: 1px solid {border};
-    border-radius: 8px;
-    padding: 6px 10px;
-    cursor: pointer;
-    color: {text};
-    font-size: 20px;
-    line-height: 1;
-    transition: background 0.15s;
-}}
-.nc-ham-btn:hover {{ background: {border}; }}
 
-/* ── Mobile overlay menu ── */
-.nc-mob-overlay {{
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 1001;
-}}
-.nc-mob-overlay.open {{ display: block; }}
-
-.nc-mob-drawer {{
-    position: fixed;
-    top: 0; right: -280px;
-    width: 260px; height: 100%;
-    background: {card};
-    border-left: 1px solid {border};
-    z-index: 1002;
-    transition: right 0.25s ease;
-    display: flex; flex-direction: column;
-    box-shadow: -4px 0 24px rgba(0,0,0,0.4);
-}}
-.nc-mob-drawer.open {{ right: 0; }}
-
-.nc-mob-header {{
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 20px;
-    border-bottom: 1px solid {border};
-    flex-shrink: 0;
-}}
-.nc-mob-title {{ font-size: 15px; font-weight: 800; color: {text}; }}
-.nc-mob-close {{
-    background: none; border: none; cursor: pointer;
-    color: {sub}; font-size: 22px; line-height: 1; padding: 4px;
-    border-radius: 6px; transition: background 0.15s;
-}}
-.nc-mob-close:hover {{ background: {border}; color: {text}; }}
-
-.nc-mob-nav {{
-    flex: 1; overflow-y: auto; padding: 8px 0;
-}}
-.nc-mob-item {{
-    display: flex; align-items: center; gap: 14px;
-    padding: 14px 20px;
-    font-size: 14px; font-weight: 500;
-    color: {sub};
-    text-decoration: none;
-    border-left: 3px solid transparent;
-    transition: all 0.15s;
-    cursor: pointer;
-}}
-.nc-mob-item:hover {{ background: {border}33; color: {text}; }}
-.nc-mob-item.active {{
-    color: {text}; font-weight: 700;
-    background: {accent}33;
-    border-left: 3px solid {text};
-}}
-.nc-mob-emoji {{ font-size: 18px; width: 24px; text-align: center; flex-shrink: 0; }}
-.nc-mob-label {{ font-size: 14px; }}
-
-.nc-mob-footer {{
-    padding: 16px 20px;
-    border-top: 1px solid {border};
-    font-size: 11px; color: {sub};
-    flex-shrink: 0;
-}}
 
 /* ── Content ── */
 .nc-content {{
@@ -294,8 +219,6 @@ tbody tr td {{ color: {text} !important; background: {bg} !important; }}
    MOBILE BREAKPOINT
 ══════════════════════════════════════════ */
 @media (max-width: 768px) {{
-    .nc-desktop-tabs {{ display: none !important; }}
-    .nc-ham-btn {{ display: block; }}
     .nc-brand-sub {{ display: none; }}
     .nc-content {{ padding: 14px 14px 32px 14px; }}
     .nc-info-panel {{ display: none; }}
@@ -305,6 +228,7 @@ tbody tr td {{ color: {text} !important; background: {bg} !important; }}
 }}
 @media (max-width: 480px) {{
     .nc-brand-name {{ font-size: 14px; }}
+    .nc-tab {{ padding: 10px 10px; font-size: 12px; }}
     .nc-content {{ padding: 12px 12px 28px 12px; }}
 }}
 </style>
@@ -321,94 +245,19 @@ tbody tr td {{ color: {text} !important; background: {bg} !important; }}
             <div class="nc-brand-sub">AI Fake News Detector</div>
         </div>
     </div>
-    <button class="nc-ham-btn" id="hamBtn" aria-label="Menu">☰</button>
 </nav>
 
-<!-- ══ DESKTOP TABS ══ -->
+<!-- ══ TAB BAR (scrollable on mobile + desktop) ══ -->
 <div class="nc-desktop-tabs">
-    {desktop_tabs}
+    {tab_links}
 </div>
-
-<!-- ══ MOBILE OVERLAY ══ -->
-<div class="nc-mob-overlay" id="mobOverlay"></div>
-
-<!-- ══ MOBILE DRAWER ══ -->
-<div class="nc-mob-drawer" id="mobDrawer">
-    <div class="nc-mob-header">
-        <span class="nc-mob-title">NetConfirm</span>
-        <button class="nc-mob-close" id="mobCloseBtn">✕</button>
-    </div>
-    <nav class="nc-mob-nav">
-        {mobile_items}
-    </nav>
-    <div class="nc-mob-footer">AI Fake News Detector · v1.0</div>
-</div>
-
-<script>
-var _doc = window.parent.document;
-
-function toggleMenu() {{
-    var overlay = _doc.getElementById('mobOverlay');
-    var drawer  = _doc.getElementById('mobDrawer');
-    var btn     = _doc.getElementById('hamBtn');
-    var isOpen  = drawer.classList.contains('open');
-    if (isOpen) {{
-        closeMenu();
-    }} else {{
-        overlay.classList.add('open');
-        drawer.classList.add('open');
-        btn.textContent = '\u2715';
-        _doc.body.style.overflow = 'hidden';
-    }}
-}}
-
-function closeMenu() {{
-    var overlay = _doc.getElementById('mobOverlay');
-    var drawer  = _doc.getElementById('mobDrawer');
-    var btn     = _doc.getElementById('hamBtn');
-    if (!overlay || !drawer) return;
-    overlay.classList.remove('open');
-    drawer.classList.remove('open');
-    btn.textContent = '\u2630';
-    _doc.body.style.overflow = '';
-}}
-
-function navTo(page) {{
-    closeMenu();
-    var url = new URL(window.parent.location.href);
-    url.searchParams.set('nav', page);
-    window.parent.location.href = url.toString();
-}}
-
-(function() {{
-    function wire() {{
-        var btn   = _doc.getElementById('hamBtn');
-        var close = _doc.getElementById('mobCloseBtn');
-        var ovl   = _doc.getElementById('mobOverlay');
-        if (btn)   btn.addEventListener('click', toggleMenu);
-        if (close) close.addEventListener('click', closeMenu);
-        if (ovl)   ovl.addEventListener('click', closeMenu);
-        _doc.querySelectorAll('[data-nav]').forEach(function(el) {{
-            el.addEventListener('click', function(e) {{
-                e.preventDefault();
-                navTo(el.getAttribute('data-nav'));
-            }});
-        }});
-    }}
-    if (_doc.readyState === 'loading') {{
-        _doc.addEventListener('DOMContentLoaded', wire);
-    }} else {{
-        wire();
-    }}
-}})();
-</script>
 """, unsafe_allow_html=True)
 
 # Handle URL nav param
 params = st.query_params
 if "nav" in params:
     nav_val = params["nav"]
-    valid   = [p for p, _, _ in nav_items]
+    valid   = [p for p, _ in nav_items]
     if nav_val in valid and nav_val != page:
         st.session_state["page"] = nav_val
         st.query_params.clear()

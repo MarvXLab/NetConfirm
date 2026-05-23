@@ -14,6 +14,12 @@ amber  = "#f59e0b"
 
 API_BASE = os.getenv("API_BASE_URL", "https://netconfirm-api.onrender.com")
 
+KEY_ICON   = "https://cdn-icons-png.flaticon.com/128/7383/7383719.png"
+LOOKUP_ICON= "https://cdn-icons-png.flaticon.com/128/15714/15714705.png"
+TEST_ICON  = "https://cdn-icons-png.flaticon.com/128/18573/18573685.png"
+DOCS_ICON  = "https://cdn-icons-png.flaticon.com/128/10426/10426380.png"
+API_ICON   = "https://cdn-icons-png.flaticon.com/128/8267/8267389.png"
+
 
 def _code_block(content: str):
     st.markdown(f"""
@@ -27,13 +33,12 @@ def _code_block(content: str):
 
 def render():
     st.markdown(f"""
-    <div style='margin-bottom:20px;'>
-        <h2 style='font-size:20px;font-weight:800;color:{text};margin:0 0 4px 0;'>
-            ⚡ API Playground
-        </h2>
-        <p style='font-size:13px;color:{sub};margin:0;'>
-            Get a free API key, test endpoints, and integrate NetConfirm into your apps.
-        </p>
+    <div style='margin-bottom:20px;display:flex;align-items:center;gap:10px;'>
+        <img src='{API_ICON}' style='width:24px;height:24px;object-fit:contain;filter:brightness(0) invert(1);'>
+        <div>
+            <h2 style='font-size:20px;font-weight:800;color:{text};margin:0 0 2px 0;'>API Playground</h2>
+            <p style='font-size:13px;color:{sub};margin:0;'>Get a free API key, test endpoints, and integrate NetConfirm into your apps.</p>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -59,7 +64,7 @@ def render():
     """, unsafe_allow_html=True)
 
     tab_getkey, tab_lookup, tab_test, tab_docs = st.tabs([
-        "🔑 Get Free API Key", "🔎 Look Up My Key", "🧪 Test Endpoints", "📖 Quick Reference"
+        "Get Free API Key", "Look Up My Key", "Test Endpoints", "Quick Reference"
     ])
 
     # ── TAB 1: Get Free API Key ───────────────────────────
@@ -82,7 +87,7 @@ def render():
         reg_name  = st.text_input("Your Name / App Name", placeholder="e.g. John, my-news-app", key="reg_name")
         st.markdown("</div>", unsafe_allow_html=True)
 
-        if st.button("🔑  Generate My Free API Key", type="primary", use_container_width=True):
+        if st.button("Generate My Free API Key", type="primary", use_container_width=True):
             if not reg_email.strip():
                 st.error("Please enter your email address.")
             else:
@@ -180,7 +185,7 @@ def render():
         lookup_email = st.text_input("Registered Email", placeholder="you@example.com", key="lookup_email")
         st.markdown("</div>", unsafe_allow_html=True)
 
-        if st.button("🔎  Look Up", type="primary"):
+        if st.button("Look Up", type="primary"):
             if not lookup_email.strip():
                 st.error("Enter your email.")
             else:
@@ -300,7 +305,7 @@ def render():
                     unsafe_allow_html=True)
         _code_block(curl)
 
-        if st.button("▶  Send Request", type="primary"):
+        if st.button("Send Request", type="primary"):
             if not api_key_input.strip() and "health" not in endpoint:
                 st.error("Enter your API key first.")
             else:

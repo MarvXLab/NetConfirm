@@ -20,11 +20,16 @@ amber  = "#f59e0b"
 DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
 
+TREND_ICON    = "https://cdn-icons-png.flaticon.com/128/12513/12513740.png"
+REFRESH_ICON  = "https://cdn-icons-png.flaticon.com/128/16716/16716821.png"
+
+
 def _no_data_card(msg="Not enough data yet — run some analyses first."):
     st.markdown(f"""
     <div style='background:{muted};border:1px solid {border};border-radius:12px;
         padding:40px;text-align:center;'>
-        <p style='font-size:28px;margin:0 0 10px 0;'>📊</p>
+        <img src='{TREND_ICON}' style='width:40px;height:40px;object-fit:contain;
+            filter:brightness(0) invert(1);opacity:0.4;margin-bottom:10px;display:block;margin-left:auto;margin-right:auto;'>
         <p style='font-size:14px;color:{sub};margin:0;'>{msg}</p>
     </div>
     """, unsafe_allow_html=True)
@@ -32,20 +37,18 @@ def _no_data_card(msg="Not enough data yet — run some analyses first."):
 
 def render():
     st.markdown(f"""
-    <div style='margin-bottom:20px;'>
-        <h2 style='font-size:20px;font-weight:800;color:{text};margin:0 0 4px 0;'>
-            📈 Trending Misinformation
-        </h2>
-        <p style='font-size:13px;color:{sub};margin:0;'>
-            Live analytics from all NetConfirm detections — updated in real time.
-        </p>
+    <div style='margin-bottom:20px;display:flex;align-items:center;gap:10px;'>
+        <img src='{TREND_ICON}' style='width:24px;height:24px;object-fit:contain;filter:brightness(0) invert(1);'>
+        <div>
+            <h2 style='font-size:20px;font-weight:800;color:{text};margin:0 0 2px 0;'>Trending Misinformation</h2>
+            <p style='font-size:13px;color:{sub};margin:0;'>Live analytics from all NetConfirm detections — updated in real time.</p>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # ── Refresh button ────────────────────────────────────
     col_r, _ = st.columns([1, 6])
     with col_r:
-        if st.button("🔄 Refresh", type="secondary", use_container_width=True):
+        if st.button("⟳ Refresh", type="secondary", use_container_width=True):
             st.cache_data.clear()
             st.rerun()
 

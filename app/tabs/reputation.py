@@ -14,7 +14,13 @@ green  = "#16a34a"
 amber  = "#f59e0b"
 blue   = "#3b82f6"
 
-CATEGORIES = ["Unknown", "News", "Politics", "Technology", "Entertainment",
+REP_ICON      = "https://cdn-icons-png.flaticon.com/128/8915/8915911.png"
+NO_DOM_ICON   = "https://cdn-icons-png.flaticon.com/128/3434/3434892.png"
+LOOKUP_ICON   = "https://cdn-icons-png.flaticon.com/128/15714/15714705.png"
+SUBMIT_ICON   = "https://cdn-icons-png.flaticon.com/128/14964/14964596.png"
+FLAG_ICON     = "https://cdn-icons-png.flaticon.com/128/16973/16973545.png"
+DB_ICON       = "https://cdn-icons-png.flaticon.com/128/2232/2232186.png"
+
               "Sports", "Science", "Health", "Business", "Satire", "Conspiracy"]
 
 
@@ -36,13 +42,15 @@ def _trust_label(score: float):
 
 def render():
     st.markdown(f"""
-    <div style='margin-bottom:20px;'>
-        <h2 style='font-size:20px;font-weight:800;color:{text};margin:0 0 4px 0;'>
-            🌐 Source Reputation Database
-        </h2>
-        <p style='font-size:13px;color:{sub};margin:0;'>
-            Search, rate and flag news domains. Community-powered trust registry.
-        </p>
+    <div style='margin-bottom:20px;display:flex;align-items:center;gap:10px;'>
+        <img src='{REP_ICON}' style='width:24px;height:24px;object-fit:contain;filter:brightness(0) invert(1);'>
+        <div>
+            <h2 style='font-size:20px;font-weight:800;color:{text};margin:0 0 2px 0;display:flex;align-items:center;gap:8px;'>
+                <img src='{DB_ICON}' style='width:18px;height:18px;object-fit:contain;filter:brightness(0) invert(1);'>
+                Source Reputation Database
+            </h2>
+            <p style='font-size:13px;color:{sub};margin:0;'>Search, rate and flag news domains. Community-powered trust registry.</p>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -78,7 +86,7 @@ def render():
 
     # ── Tabs: Search | Lookup | Submit | Flag ─────────────
     tab_search, tab_lookup, tab_submit, tab_flag = st.tabs([
-        "🔍 Search Registry", "🔎 Lookup Domain", "➕ Submit Domain", "🚩 Flag Domain"
+        "Search Registry", "Look Up Domain", "Submit Domain", "Flag Domain"
     ])
 
     # ════════════════════════════════════════════════════
@@ -105,7 +113,8 @@ def render():
             st.markdown(f"""
             <div style='background:{muted};border:1px solid {border};border-radius:12px;
                 padding:40px;text-align:center;margin-top:12px;'>
-                <p style='font-size:28px;margin:0 0 10px 0;'>🌐</p>
+                <img src='{NO_DOM_ICON}' style='width:40px;height:40px;object-fit:contain;
+                    filter:brightness(0) invert(1);opacity:0.5;display:block;margin:0 auto 12px auto;'>
                 <p style='font-size:14px;color:{sub};margin:0;'>
                     No domains found. Submit articles with source URLs to auto-populate,
                     or add domains manually using the Submit tab.
@@ -242,7 +251,8 @@ def render():
                 st.markdown(f"""
                 <div style='background:{muted};border:1px solid {border};border-radius:12px;
                     padding:32px;text-align:center;margin-top:12px;'>
-                    <p style='font-size:28px;margin:0 0 8px 0;'>🔍</p>
+                    <img src='{NO_DOM_ICON}' style='width:36px;height:36px;object-fit:contain;
+                        filter:brightness(0) invert(1);opacity:0.5;display:block;margin:0 auto 10px auto;'>
                     <p style='font-size:14px;color:{text};font-weight:600;margin:0 0 4px 0;'>
                         {domain_clean} not found
                     </p>
@@ -278,7 +288,7 @@ def render():
                                 height=80)
         st.markdown("</div>", unsafe_allow_html=True)
 
-        if st.button("✅  Submit Domain", type="primary"):
+        if st.button("Submit Domain", type="primary"):
             if not new_domain.strip():
                 st.error("Domain name is required.")
             else:
@@ -311,7 +321,7 @@ def render():
                                    height=100)
         st.markdown("</div>", unsafe_allow_html=True)
 
-        if st.button("🚩  Submit Flag", type="primary"):
+        if st.button("Submit Flag", type="primary"):
             if not flag_domain_input.strip():
                 st.error("Domain name is required.")
             elif not flag_reason.strip():

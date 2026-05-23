@@ -347,7 +347,11 @@ def render():
         st.markdown(f"""
         <div style='background:{card};border:1px solid {border};border-radius:14px;
             padding:24px 24px 16px 24px;box-shadow:0 2px 12px rgba(0,0,0,0.05);margin-bottom:16px;'>
-            <h3 style='font-size:18px;font-weight:800;color:{text};margin:0 0 4px 0;'>Analyse an Article</h3>
+            <h3 style='font-size:18px;font-weight:800;color:{text};margin:0 0 4px 0;display:flex;align-items:center;gap:10px;'>
+                <img src='https://cdn-icons-png.flaticon.com/128/10496/10496548.png'
+                    style='width:20px;height:20px;object-fit:contain;filter:brightness(0) invert(1);'>
+                Analyse an Article
+            </h3>
             <p style='font-size:13px;color:{sub};margin:0;'>Paste text or enter a URL to scan an article instantly.</p>
         </div>
         """, unsafe_allow_html=True)
