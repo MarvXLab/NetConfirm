@@ -320,7 +320,7 @@ tbody tr td {{ color: {text} !important; background: {bg} !important; }}
             <div class="nc-brand-sub">AI Fake News Detector</div>
         </div>
     </div>
-    <button class="nc-ham-btn" onclick="toggleMenu()" id="hamBtn" aria-label="Menu">☰</button>
+    <button class="nc-ham-btn" id="hamBtn" aria-label="Menu">☰</button>
 </nav>
 
 <!-- ══ DESKTOP TABS ══ -->
@@ -329,13 +329,13 @@ tbody tr td {{ color: {text} !important; background: {bg} !important; }}
 </div>
 
 <!-- ══ MOBILE OVERLAY ══ -->
-<div class="nc-mob-overlay" id="mobOverlay" onclick="closeMenu()"></div>
+<div class="nc-mob-overlay" id="mobOverlay"></div>
 
 <!-- ══ MOBILE DRAWER ══ -->
 <div class="nc-mob-drawer" id="mobDrawer">
     <div class="nc-mob-header">
         <span class="nc-mob-title">NetConfirm</span>
-        <button class="nc-mob-close" onclick="closeMenu()">✕</button>
+        <button class="nc-mob-close" id="mobCloseBtn">✕</button>
     </div>
     <nav class="nc-mob-nav">
         {mobile_items}
@@ -344,10 +344,12 @@ tbody tr td {{ color: {text} !important; background: {bg} !important; }}
 </div>
 
 <script>
+var _doc = window.parent.document;
+
 function toggleMenu() {{
-    var overlay = document.getElementById('mobOverlay');
-    var drawer  = document.getElementById('mobDrawer');
-    var btn     = document.getElementById('hamBtn');
+    var overlay = _doc.getElementById('mobOverlay');
+    var drawer  = _doc.getElementById('mobDrawer');
+    var btn     = _doc.getElementById('hamBtn');
     var isOpen  = drawer.classList.contains('open');
     if (isOpen) {{
         closeMenu();
@@ -355,27 +357,44 @@ function toggleMenu() {{
         overlay.classList.add('open');
         drawer.classList.add('open');
         btn.textContent = '✕';
-        document.body.style.overflow = 'hidden';
+        _doc.body.style.overflow = 'hidden';
     }}
 }}
 
 function closeMenu() {{
-    var overlay = document.getElementById('mobOverlay');
-    var drawer  = document.getElementById('mobDrawer');
-    var btn     = document.getElementById('hamBtn');
+    var overlay = _doc.getElementById('mobOverlay');
+    var drawer  = _doc.getElementById('mobDrawer');
+    var btn     = _doc.getElementById('hamBtn');
+    if (!overlay || !drawer) return;
     overlay.classList.remove('open');
     drawer.classList.remove('open');
     btn.textContent = '☰';
-    document.body.style.overflow = '';
+    _doc.body.style.overflow = '';
 }}
 
 function navTo(page) {{
     closeMenu();
-    // Update URL param and trigger Streamlit rerun via query param
-    var url = new URL(window.location.href);
+    var url = new URL(window.parent.location.href);
     url.searchParams.set('nav', page);
-    window.location.href = url.toString();
+    window.parent.location.href = url.toString();
 }}
+
+// Wire up all interactive elements
+(function() {{
+    function wire() {{
+        var btn   = _doc.getElementById('hamBtn');
+        var close = _doc.getElementById('mobCloseBtn');
+        var ovl   = _doc.getElementById('mobOverlay');
+        if (btn)   btn.addEventListener('click', toggleMenu);
+        if (close) close.addEventListener('click', closeMenu);
+        if (ovl)   ovl.addEventListener('click', closeMenu);
+    }}
+    if (_doc.readyState === 'loading') {{
+        _doc.addEventListener('DOMContentLoaded', wire);
+    }} else {{
+        wire();
+    }}
+}})();
 </script>
 """, unsafe_allow_html=True)
 
