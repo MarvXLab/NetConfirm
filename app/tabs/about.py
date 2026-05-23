@@ -31,7 +31,7 @@ def render():
         <img src='https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&h=120&fit=crop&crop=face'
             style='width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid {border};flex-shrink:0;'>
         <div style='flex:1;min-width:200px;'>
-            <p style='font-size:18px;font-weight:800;color:{text};margin:0 0 6px 0;'>Hi, I am Taiwo Emmanuel 👋</p>
+            <p style='font-size:18px;font-weight:800;color:{text};margin:0 0 6px 0;'>Hi, I am Taiwo Emmanuel</p>
             <p style='font-size:14px;color:{sub};margin:0;line-height:1.7;'>
                 I built NetConfirm as my final year project at Westland University. The internet is full of misleading
                 stories and I wanted to build something that actually helps people tell the difference between
@@ -204,6 +204,6 @@ def render():
     # Footer
     st.markdown(f"""
     <p style='font-size:12px;color:{sub};text-align:center;margin-top:8px;'>
-        Built by Taiwo Emmanuel &nbsp;·&nbsp; Westland University &nbsp;·&nbsp; Computer Science FYP &nbsp;·&nbsp; 2025
+        Built by <a href='https://github.com/marvxlab' target='_blank' style='color:{blue};text-decoration:none;display:inline-flex;align-items:center;gap:5px;'><img src='https://cdn-icons-png.flaticon.com/128/733/733553.png' style='width:14px;height:14px;filter:brightness(0) invert(1);'>MarvXLab</a> &nbsp;·&nbsp; Westland University &nbsp;·&nbsp; Computer Science FYP &nbsp;·&nbsp; 2025
     </p>
     """, unsafe_allow_html=True)

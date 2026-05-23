@@ -3,6 +3,19 @@ import requests
 import os
 from datetime import datetime
 
+NEWS_ICON = "https://cdn-icons-png.flaticon.com/128/2963/2963907.png"
+
+CAT_ICONS = {
+    "General":       "https://cdn-icons-png.flaticon.com/128/681/681508.png",
+    "Technology":    "https://cdn-icons-png.flaticon.com/128/2103/2103633.png",
+    "Politics":      "https://cdn-icons-png.flaticon.com/128/3898/3898150.png",
+    "Business":      "https://cdn-icons-png.flaticon.com/128/3135/3135706.png",
+    "Entertainment": "https://cdn-icons-png.flaticon.com/128/3669/3669950.png",
+    "Sports":        "https://cdn-icons-png.flaticon.com/128/857/857435.png",
+    "Science":       "https://cdn-icons-png.flaticon.com/128/1532/1532556.png",
+    "Health":        "https://cdn-icons-png.flaticon.com/128/2966/2966327.png",
+}
+
 CATEGORIES = ["General", "Technology", "Politics", "Business", "Entertainment", "Sports", "Science", "Health"]
 
 card   = "#1e293b"
@@ -149,17 +162,58 @@ def render():
 
     st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
 
-    # Category selector — 4 per row on mobile
+    # ── Scrollable category tab bar (same pattern as main nav) ──
     selected_cat = st.session_state.get("news_category", "General")
-    cols = st.columns(4)
-    for i, cat in enumerate(CATEGORIES):
-        with cols[i % 4]:
-            if st.button(cat, key=f"nc_{cat}", use_container_width=True,
-                         type="primary" if cat == selected_cat else "secondary"):
-                st.session_state["news_category"] = cat
-                st.rerun()
 
-    st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+    cat_tabs = ""
+    for cat in CATEGORIES:
+        active = "nc-cat-active" if cat == selected_cat else ""
+        icon_url = CAT_ICONS[cat]
+        cat_tabs += (
+            f'<a class="nc-cat-tab {active}" href="?news_cat={cat}" target="_self">'
+            f'<img src="{icon_url}" style="width:14px;height:14px;object-fit:contain;filter:brightness(0) invert(1);flex-shrink:0;">'
+            f'{cat}</a>'
+        )
+
+    st.markdown(f"""
+    <style>
+    .nc-cat-bar {{
+        display: flex; align-items: center;
+        overflow-x: auto; scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        gap: 4px; padding: 4px 0 8px 0;
+        border-bottom: 1px solid {border};
+        margin-bottom: 16px;
+    }}
+    .nc-cat-bar::-webkit-scrollbar {{ display: none; }}
+    .nc-cat-tab {{
+        display: flex; align-items: center; gap: 6px;
+        padding: 7px 14px;
+        font-size: 13px; font-weight: 500;
+        color: {sub}; background: {card};
+        text-decoration: none; white-space: nowrap;
+        border-radius: 20px; border: 1px solid {border};
+        transition: all 0.15s; flex-shrink: 0;
+    }}
+    .nc-cat-tab:hover {{ color: {text}; border-color: {text}; }}
+    .nc-cat-active {{
+        color: {text}; font-weight: 700;
+        background: #1a1a2e; border-color: {text};
+    }}
+    </style>
+    <div class="nc-cat-bar">{cat_tabs}</div>
+    """, unsafe_allow_html=True)
+
+    # Handle category query param
+    _params = st.query_params
+    if "news_cat" in _params:
+        _cat = _params["news_cat"]
+        if _cat in CATEGORIES and _cat != selected_cat:
+            st.session_state["news_category"] = _cat
+            st.query_params.clear()
+            st.rerun()
+        elif _cat in CATEGORIES:
+            st.query_params.clear()
 
     with st.spinner(""):
         articles, error = fetch_news(selected_cat)
