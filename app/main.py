@@ -269,18 +269,20 @@ if not st.session_state["disclaimer_accepted"]:
     #disclaimer-overlay {
         position: fixed; inset: 0; z-index: 999999;
         background: rgba(0,0,0,0.96); backdrop-filter: blur(10px);
-        display: flex; align-items: center; justify-content: center;
-        padding: 20px; font-family: 'Inter', sans-serif;
+        display: flex; align-items: flex-start; justify-content: center;
+        padding: 16px; font-family: 'Inter', sans-serif;
+        overflow-y: auto;
     }
     #disclaimer-box {
         background: #0f172a; border: 1px solid #334155;
         border-radius: 20px; max-width: 540px; width: 100%;
         box-shadow: 0 32px 80px rgba(0,0,0,0.7); overflow: hidden;
+        margin: auto;
     }
     #disclaimer-header {
         background: linear-gradient(135deg,rgba(239,68,68,0.15),rgba(239,68,68,0.05));
         border-bottom: 1px solid rgba(239,68,68,0.2);
-        padding: 22px 28px; display: flex; align-items: center; gap: 14px;
+        padding: 20px 24px; display: flex; align-items: center; gap: 14px;
     }
     #disclaimer-icon {
         width: 44px; height: 44px; border-radius: 12px;
@@ -290,11 +292,11 @@ if not st.session_state["disclaimer_accepted"]:
     }
     #disclaimer-title { font-size: 17px; font-weight: 700; color: #f1f5f9; margin: 0; }
     #disclaimer-sub   { font-size: 12px; color: #64748b; margin: 3px 0 0; }
-    #disclaimer-body  { padding: 24px 28px; display: flex; flex-direction: column; gap: 14px; }
+    #disclaimer-body  { padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; }
     .d-alert {
         background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.2);
-        border-radius: 10px; padding: 14px 16px;
-        font-size: 13px; color: #fca5a5; line-height: 1.7; font-weight: 600;
+        border-radius: 10px; padding: 12px 16px;
+        font-size: 13px; color: #fca5a5; line-height: 1.6; font-weight: 600;
     }
     .d-text { font-size: 13px; color: #94a3b8; line-height: 1.75; margin: 0; }
     .d-contact {
@@ -312,7 +314,26 @@ if not st.session_state["disclaimer_accepted"]:
     }
     .d-contact a:last-child { margin-bottom: 0; }
     .d-contact a:hover { color: #a5b4fc; }
-    .d-note { font-size: 11px; color: #334155; text-align: center; line-height: 1.6; margin: 0; }
+    .d-contact svg { flex-shrink: 0; }
+    .d-divider { border: none; border-top: 1px solid #1e293b; margin: 0; }
+    .d-terms {
+        background: #0a0f1a; border: 1px solid #1e293b;
+        border-radius: 10px; padding: 14px 16px;
+    }
+    .d-terms-label {
+        font-size: 10px; font-weight: 700; color: #475569;
+        text-transform: uppercase; letter-spacing: 0.7px; margin: 0 0 10px;
+    }
+    .d-terms p { font-size: 12px; color: #64748b; line-height: 1.7; margin: 0 0 8px; }
+    .d-terms p:last-child { margin: 0; }
+    .d-note { font-size: 11px; color: #475569; text-align: center; line-height: 1.6; margin: 0; }
+    .d-copyright { font-size: 11px; color: #334155; text-align: center; margin: 0; }
+    @media (max-width: 480px) {
+        #disclaimer-overlay { padding: 12px; align-items: flex-start; }
+        #disclaimer-header { padding: 16px 18px; }
+        #disclaimer-body { padding: 16px 18px; gap: 12px; }
+        #disclaimer-title { font-size: 15px; }
+    }
     </style>
 
     <div id="disclaimer-overlay">
@@ -325,15 +346,13 @@ if not st.session_state["disclaimer_accepted"]:
           </div>
         </div>
         <div id="disclaimer-body">
-          <div class="d-alert">
-            ⚠️ OWNERSHIP DISCLAIMER
-          </div>
+          <div class="d-alert">⚠️ OWNERSHIP DISCLAIMER</div>
           <p class="d-text">
-            This application — <strong style="color:#e2e8f0">NetConfirm AI Fake News Detector</strong> —
+            This application <strong style="color:#e2e8f0">NetConfirm AI Fake News Detector</strong>
             including its design, source code, machine learning models, database architecture,
             browser extension, and all associated intellectual property, was
-            <strong style="color:#e2e8f0"> solely conceived, designed, and built</strong>
-            by its original developer NOT TAIWO EMMANUEL( WHO STOLE THIS PROJECT).
+            <strong style="color:#e2e8f0">solely conceived, designed, and built</strong>
+            by its original developer. NOT TAIWO EMMANUEL WHO STOLE THIS PROJECT.
           </p>
           <p class="d-text">
             Any unauthorized reproduction, redistribution, reselling, or false claiming of
@@ -347,9 +366,32 @@ if not st.session_state["disclaimer_accepted"]:
           </p>
           <div class="d-contact">
             <p class="d-contact-label">Contact Original Developer</p>
-            <a href="mailto:marvxlab@gmail.com">📧 marvxlab@gmail.com</a>
-            <a href="https://github.com/marvxlab" target="_blank">🐙 github.com/marvxlab</a>
-            <a href="tel:+2348153774727">📞 +234 815 377 4727</a>
+            <a href="mailto:marvxlab@gmail.com">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M20 4H4C2.9 4 2 4.9 2 6v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="#EA4335"/>
+              </svg>
+              marvxlab@gmail.com
+            </a>
+            <a href="https://github.com/marvxlab" target="_blank">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#f1f5f9">
+                <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836a9.59 9.59 0 012.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/>
+              </svg>
+              github.com/marvxlab
+            </a>
+            <a href="tel:+2348153774727">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" fill="#34A853"/>
+              </svg>
+              +234 815 377 4727
+            </a>
+          </div>
+          <hr class="d-divider">
+          <div class="d-terms">
+            <p class="d-terms-label">Terms &amp; Conditions</p>
+            <p>By using NetConfirm, you agree that this platform is provided for informational purposes only. The AI predictions do not constitute professional fact-checking or legal advice.</p>
+            <p>You agree not to use this platform for any unlawful purpose, to attempt to reverse-engineer the models, or to claim ownership of any part of this system.</p>
+            <p>MarvXLab reserves the right to modify, suspend, or discontinue the service at any time without notice. Continued use constitutes acceptance of any updated terms.</p>
+            <p style="color:#475569">© 2025 MarvXLab. All rights reserved.</p>
           </div>
           <p class="d-note">
             By clicking continue you acknowledge that you have read this notice and agree
@@ -360,7 +402,6 @@ if not st.session_state["disclaimer_accepted"]:
     </div>
 
     <script>
-        // Trap back button — keep pushing state so back never escapes
         history.pushState(null, '', window.location.href);
         window.addEventListener('popstate', function() {
             history.pushState(null, '', window.location.href);
