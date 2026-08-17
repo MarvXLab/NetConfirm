@@ -259,8 +259,126 @@ tbody tr td {{ color: {text} !important; background: {bg} !important; }}
 </div>
 """, unsafe_allow_html=True)
 
-# Handle URL nav param
-params = st.query_params
+# ── Ownership Disclaimer ─────────────────────────────────────────────────────
+if "disclaimer_accepted" not in st.session_state:
+    st.session_state["disclaimer_accepted"] = False
+
+if not st.session_state["disclaimer_accepted"]:
+    st.markdown("""
+    <style>
+    #disclaimer-overlay {
+        position: fixed; inset: 0; z-index: 999999;
+        background: rgba(0,0,0,0.96); backdrop-filter: blur(10px);
+        display: flex; align-items: center; justify-content: center;
+        padding: 20px; font-family: 'Inter', sans-serif;
+    }
+    #disclaimer-box {
+        background: #0f172a; border: 1px solid #334155;
+        border-radius: 20px; max-width: 540px; width: 100%;
+        box-shadow: 0 32px 80px rgba(0,0,0,0.7); overflow: hidden;
+    }
+    #disclaimer-header {
+        background: linear-gradient(135deg,rgba(239,68,68,0.15),rgba(239,68,68,0.05));
+        border-bottom: 1px solid rgba(239,68,68,0.2);
+        padding: 22px 28px; display: flex; align-items: center; gap: 14px;
+    }
+    #disclaimer-icon {
+        width: 44px; height: 44px; border-radius: 12px;
+        background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3);
+        display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        font-size: 22px;
+    }
+    #disclaimer-title { font-size: 17px; font-weight: 700; color: #f1f5f9; margin: 0; }
+    #disclaimer-sub   { font-size: 12px; color: #64748b; margin: 3px 0 0; }
+    #disclaimer-body  { padding: 24px 28px; display: flex; flex-direction: column; gap: 14px; }
+    .d-alert {
+        background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.2);
+        border-radius: 10px; padding: 14px 16px;
+        font-size: 13px; color: #fca5a5; line-height: 1.7; font-weight: 600;
+    }
+    .d-text { font-size: 13px; color: #94a3b8; line-height: 1.75; margin: 0; }
+    .d-contact {
+        background: #1e293b; border: 1px solid #334155;
+        border-radius: 10px; padding: 14px 16px;
+    }
+    .d-contact-label {
+        font-size: 10px; font-weight: 700; color: #475569;
+        text-transform: uppercase; letter-spacing: 0.7px; margin: 0 0 10px;
+    }
+    .d-contact a {
+        display: flex; align-items: center; gap: 8px;
+        color: #818cf8; font-size: 13px; text-decoration: none;
+        font-weight: 500; margin-bottom: 6px;
+    }
+    .d-contact a:last-child { margin-bottom: 0; }
+    .d-contact a:hover { color: #a5b4fc; }
+    .d-note { font-size: 11px; color: #334155; text-align: center; line-height: 1.6; margin: 0; }
+    </style>
+
+    <div id="disclaimer-overlay">
+      <div id="disclaimer-box">
+        <div id="disclaimer-header">
+          <div id="disclaimer-icon">⚖️</div>
+          <div>
+            <p id="disclaimer-title">Intellectual Property Notice</p>
+            <p id="disclaimer-sub">Please read carefully before continuing</p>
+          </div>
+        </div>
+        <div id="disclaimer-body">
+          <div class="d-alert">
+            ⚠️ OWNERSHIP DISCLAIMER
+          </div>
+          <p class="d-text">
+            This application — <strong style="color:#e2e8f0">NetConfirm AI Fake News Detector</strong> —
+            including its design, source code, machine learning models, database architecture,
+            browser extension, and all associated intellectual property, was
+            <strong style="color:#e2e8f0"> solely conceived, designed, and built</strong>
+            by its original developer.
+          </p>
+          <p class="d-text">
+            Any unauthorized reproduction, redistribution, reselling, or false claiming of
+            ownership of this project or any part thereof is a violation of intellectual
+            property rights and may be subject to legal action.
+          </p>
+          <p class="d-text">
+            All rights reserved. Unauthorized use of this platform's branding, codebase,
+            or infrastructure without explicit written permission from the original
+            developer is strictly prohibited.
+          </p>
+          <div class="d-contact">
+            <p class="d-contact-label">Contact Original Developer</p>
+            <a href="mailto:marvxlab@gmail.com">📧 marvxlab@gmail.com</a>
+            <a href="https://github.com/marvxlab" target="_blank">🐙 github.com/marvxlab</a>
+            <a href="tel:+2348153774727">📞 +234 815 377 4727</a>
+          </div>
+          <p class="d-note">
+            By clicking continue you acknowledge that you have read this notice and agree
+            not to misrepresent the ownership of this application.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+        // Trap back button — keep pushing state so back never escapes
+        history.pushState(null, '', window.location.href);
+        window.addEventListener('popstate', function() {
+            history.pushState(null, '', window.location.href);
+        });
+    </script>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<div style='height:60vh'></div>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("✅  I Understand & Continue", type="primary", use_container_width=True):
+            st.session_state["disclaimer_accepted"] = True
+            st.rerun()
+    st.stop()
+
+# ── End Disclaimer ────────────────────────────────────────────────────────────
+
+
 
 if "nav" in params:
     nav_val = params["nav"]
