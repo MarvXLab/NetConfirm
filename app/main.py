@@ -385,18 +385,44 @@ if not st.session_state["disclaimer_accepted"]:
               +234 815 377 4727
             </a>
           </div>
-          <hr class="d-divider">
-          <div class="d-terms">
-            <p class="d-terms-label">Terms &amp; Conditions</p>
-            <p>By using NetConfirm, you agree that this platform is provided for informational purposes only. The AI predictions do not constitute professional fact-checking or legal advice.</p>
-            <p>You agree not to use this platform for any unlawful purpose, to attempt to reverse-engineer the models, or to claim ownership of any part of this system.</p>
-            <p>MarvXLab reserves the right to modify, suspend, or discontinue the service at any time without notice. Continued use constitutes acceptance of any updated terms.</p>
-            <p style="color:#475569">© 2025 MarvXLab. All rights reserved.</p>
-          </div>
-          <p class="d-note">
-            By clicking continue you acknowledge that you have read this notice and agree
-            not to misrepresent the ownership of this application.
+          <p class="d-copyright">
+            &copy; 2025 MarvXLab &nbsp;&middot;&nbsp;
+            <span id="tc-trigger" onclick="document.getElementById('tc-modal').style.display='flex'"
+              style="color:#818cf8;cursor:pointer;text-decoration:underline;font-size:11px;">Terms &amp; Conditions</span>
           </p>
+
+          <!-- T&C Modal -->
+          <div id="tc-modal" style="display:none;position:fixed;inset:0;z-index:9999999;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px;overflow-y:auto;">
+            <div style="background:#0f172a;border:1px solid #334155;border-radius:16px;max-width:500px;width:100%;max-height:85vh;overflow-y:auto;padding:24px;position:relative;margin:auto;">
+              <button onclick="document.getElementById('tc-modal').style.display='none'" style="position:absolute;top:14px;right:16px;background:none;border:none;color:#64748b;font-size:20px;cursor:pointer;line-height:1;">&times;</button>
+              <p style="font-size:15px;font-weight:700;color:#f1f5f9;margin:0 0 4px;">Terms &amp; Conditions</p>
+              <p style="font-size:11px;color:#475569;margin:0 0 18px;">Effective Date: January 1, 2025 &nbsp;&middot;&nbsp; &copy; 2025 MarvXLab</p>
+
+              <p style="font-size:12px;font-weight:600;color:#94a3b8;margin:0 0 6px;">1. Acceptance of Terms</p>
+              <p style="font-size:12px;color:#64748b;line-height:1.7;margin:0 0 14px;">By accessing or using NetConfirm, you agree to be bound by these Terms and Conditions. If you do not agree, you must not use this platform.</p>
+
+              <p style="font-size:12px;font-weight:600;color:#94a3b8;margin:0 0 6px;">2. Intellectual Property</p>
+              <p style="font-size:12px;color:#64748b;line-height:1.7;margin:0 0 14px;">All content, source code, machine learning models, UI designs, database architecture, and the browser extension are the exclusive intellectual property of MarvXLab. No part of this platform may be reproduced, distributed, or claimed as your own without explicit written permission from MarvXLab.</p>
+
+              <p style="font-size:12px;font-weight:600;color:#94a3b8;margin:0 0 6px;">3. Permitted Use</p>
+              <p style="font-size:12px;color:#64748b;line-height:1.7;margin:0 0 14px;">NetConfirm is provided for personal, non-commercial, informational use only. You may not use this platform to process content for commercial redistribution, automated scraping, or any purpose that violates applicable law.</p>
+
+              <p style="font-size:12px;font-weight:600;color:#94a3b8;margin:0 0 6px;">4. Disclaimer of Warranties</p>
+              <p style="font-size:12px;color:#64748b;line-height:1.7;margin:0 0 14px;">NetConfirm's AI predictions are provided for informational purposes only and do not constitute professional fact-checking, legal advice, or journalistic verification. MarvXLab makes no warranties, express or implied, regarding the accuracy or completeness of any prediction.</p>
+
+              <p style="font-size:12px;font-weight:600;color:#94a3b8;margin:0 0 6px;">5. Prohibited Conduct</p>
+              <p style="font-size:12px;color:#64748b;line-height:1.7;margin:0 0 14px;">You agree not to: attempt to reverse-engineer or decompile any part of the platform; claim ownership or authorship of this project; use the platform to spread misinformation; or interfere with the platform's infrastructure or security.</p>
+
+              <p style="font-size:12px;font-weight:600;color:#94a3b8;margin:0 0 6px;">6. Limitation of Liability</p>
+              <p style="font-size:12px;color:#64748b;line-height:1.7;margin:0 0 14px;">MarvXLab shall not be liable for any direct, indirect, incidental, or consequential damages arising from your use of or inability to use this platform.</p>
+
+              <p style="font-size:12px;font-weight:600;color:#94a3b8;margin:0 0 6px;">7. Modifications</p>
+              <p style="font-size:12px;color:#64748b;line-height:1.7;margin:0 0 14px;">MarvXLab reserves the right to modify, suspend, or discontinue the service at any time without prior notice. Continued use of the platform after any changes constitutes acceptance of the updated terms.</p>
+
+              <p style="font-size:12px;font-weight:600;color:#94a3b8;margin:0 0 6px;">8. Contact</p>
+              <p style="font-size:12px;color:#64748b;line-height:1.7;margin:0;">For inquiries regarding these terms, contact: <a href="mailto:marvxlab@gmail.com" style="color:#818cf8;">marvxlab@gmail.com</a></p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
