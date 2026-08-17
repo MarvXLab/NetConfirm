@@ -333,7 +333,7 @@ if not st.session_state["disclaimer_accepted"]:
             including its design, source code, machine learning models, database architecture,
             browser extension, and all associated intellectual property, was
             <strong style="color:#e2e8f0"> solely conceived, designed, and built</strong>
-            by its original developer.
+            by its original developer NOT TAIWO EMMANUEL( WHO STOLE THIS PROJECT).
           </p>
           <p class="d-text">
             Any unauthorized reproduction, redistribution, reselling, or false claiming of

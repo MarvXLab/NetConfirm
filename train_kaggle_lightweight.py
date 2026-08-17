@@ -222,44 +222,4 @@ print(f"   feature_config.json")
 print(f"\nConfig: {config}")
 
 # ── CELL 13: Upload to HuggingFace ────────────────────────
-from huggingface_hub import HfApi, create_repo
-import os
-
-MODEL_DIR = "/kaggle/working/models"
-EXPECTED  = ["tfidf_model.pkl", "xgb_model.pkl", "scaler.pkl", "feature_config.json"]
-
-# — show what actually exists so you can debug if something is missing
-print("Files in /kaggle/working/models:")
-if os.path.isdir(MODEL_DIR):
-    for f in os.listdir(MODEL_DIR):
-        size = os.path.getsize(os.path.join(MODEL_DIR, f))
-        print(f"  {f}  ({round(size/1024, 1)} KB)")
-else:
-    print("  ❌ Directory does not exist — Cell 12 did not run!")
-    raise RuntimeError("Run Cell 12 first to save the models.")
-
-# — abort early if any file is missing
-missing = [f for f in EXPECTED if not os.path.isfile(os.path.join(MODEL_DIR, f))]
-if missing:
-    raise FileNotFoundError(
-        f"Missing: {missing}\n"
-        "Make sure Cells 10–12 all ran successfully before this cell."
-    )
-
-HF_TOKEN = "your_hf_token_here"  # ← paste a WRITE token from huggingface.co/settings/tokens
-HF_REPO  = "marvxlab/netconfirm-fake-news-model"
-
-api = HfApi()
-create_repo(repo_id=HF_REPO, token=HF_TOKEN, repo_type="model", exist_ok=True, private=False)
-print(f"✅ Repo ready: {HF_REPO}")
-
-for fname in EXPECTED:
-    api.upload_file(
-        path_or_fileobj=os.path.join(MODEL_DIR, fname),
-        path_in_repo=fname,
-        repo_id=HF_REPO,
-        token=HF_TOKEN,
-        repo_type="model",
-    )
-    print(f"✅ Uploaded {fname}")
-print("✅ All models uploaded to HuggingFace")
+ 
